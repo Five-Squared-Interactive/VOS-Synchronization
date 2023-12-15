@@ -1,0 +1,23 @@
+{
+  "author": {
+    "name": "Dylan Baker"
+  },
+  "name": "VOS-Synchronization",
+  "description": "VOS Synchronization Service.",
+  "keywords": [
+    "VOS",
+    "Synchronization"
+  ],
+  "version": "0.1.0",
+  "main": "vsstest.js.js",
+  "license": "MIT",
+  "dependencies": {
+    "mqtt": "latest",
+    "prompt-sync": "^4.1.6",
+    "prompt-sync-history": "latest",
+    "uuid": "latest"
+  },
+  "engines": {
+    "node": ">=6.0"
+  }
+}
