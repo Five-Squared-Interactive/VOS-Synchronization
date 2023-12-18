@@ -1,3 +1,26 @@
+// Copyright (c) 2019-2023 Five Squared Interactive. All rights reserved.
+
+/**
+ * @module vosEntity A VOS Entity.
+ * @param {*} uuid UUID.
+ * @param {*} tag Tag.
+ * @param {*} type Type.
+ * @param {*} path Path.
+ * @param {*} parent Parent.
+ * @param {*} position Position.
+ * @param {*} rotation Rotation.
+ * @param {*} scalesize Scale/Size.
+ * @param {*} isSize Is Size.
+ * @param {*} isSizePercent Is Size Percent.
+ * @param {*} resources Resources.
+ * @param {*} onClickEvent On Click Event.
+ * @param {*} length Length.
+ * @param {*} width Width.
+ * @param {*} height Height.
+ * @param {*} heights Heights.
+ * @param {*} text Text.
+ * @param {*} fontSize Font Size.
+ */
 module.exports = function(uuid, tag, type, path, parent,
     position, rotation, scalesize, isSize, isSizePercent,
     resources, onClickEvent, length, width, height, heights,

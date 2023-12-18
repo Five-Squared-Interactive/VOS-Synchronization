@@ -1,19 +1,41 @@
+// Copyright (c) 2019-2023 Five Squared Interactive. All rights reserved.
+
 const { spawn } = require("child_process");
 const mqtt = require("mqtt");
 const fs = require("fs");
 const { v4: uuidv4 } = require('uuid');
 const vosSynchronizationSession = require('./vossynchronizationsession.js');
 
-const CONFIGFILENAME = "config-temp";
+/**
+ * Configuration File name.
+ */
+const CONFIGFILENAME = ".config-temp";
 
+/**
+ * @module VOSSynchronizationService VOS Synchronization Service.
+ */
 module.exports = function() {
 
+    /**
+     * Version.
+     */
     this.VERSION = "0.0.1"
 
+    /**
+     * Client.
+     */
     var client;
 
+    /**
+     * VOS Synchronization Sessions.
+     */
     var vosSynchronizationSessions = {};
 
+    /**
+     * @function RunMQTT Run MQTT process.
+     * @param {*} port Port.
+     * @param {*} websocketsPort WebSockets Port.
+     */
     this.RunMQTT = function(port, websocketsPort = 0) {
         var config = `listener ${port}\nprotocol mqtt`;
         if (websocketsPort > 0) {
@@ -37,6 +59,9 @@ module.exports = function() {
         });
     }
     
+    /**
+     * @function StopMQTT Stop MQTT process.
+     */
     this.StopMQTT = function() {
         if (this.mosquittoProcess != null)
         {
@@ -47,6 +72,10 @@ module.exports = function() {
         }
     }
     
+    /**
+     * @function ConnectToMQTT Connect to MQTT server.
+     * @param {*} port Port.
+     */
     this.ConnectToMQTT = function(port) {
         client = mqtt.connect(`mqtt://localhost:${port}`);
         client.on('connect', function()  {
@@ -64,28 +93,56 @@ module.exports = function() {
         });
     }
 
+    /**
+     * @function CreateSession Create a Session.
+     * @param {*} id ID.
+     * @param {*} tag Tag.
+     */
     this.CreateSession = function(id, tag) {
         Log(`[VOSSynchronizationService] Creating session ${id} with tag ${tag}`);
         return CreateSynchronizedSession(id, tag);
     }
 
+    /**
+     * @function DeleteSession Delete a Session.
+     * @param {*} id ID.
+     */
     this.DeleteSession = function(id) {
         Log(`[VOSSynchronizationService] Deleting session ${id}`);
         return DestroySynchronizedSession(id);
     }
 
+    /**
+     * @function GetSessions Get Sessions.
+     * @returns All synchronized Sessions.
+     */
     this.GetSessions = function() {
         return GetSynchronizedSessions();
     }
 
+    /**
+     * @function GetSession Get a Session.
+     * @param {*} id ID.
+     * @returns Session with ID, or null.
+     */
     this.GetSession = function(id) {
         return GetSynchronizedSession(id);
     }
 
+    /**
+     * @function SendMessage Send a Message.
+     * @param {*} topic Topic.
+     * @param {*} message Message.
+     */
     this.SendMessage = function(topic, message) {
         SendMessage(topic, message);
     }
 
+    /**
+     * @function ProcessMessage Process a Message.
+     * @param {*} topic Topic.
+     * @param {*} message Message.
+     */
     function ProcessMessage(topic, message) {
         //Log(`${topic} ${message}`);
         parsedMessage = JSON.parse(message);
@@ -586,6 +643,11 @@ module.exports = function() {
         };
     };
 
+    /**
+     * @function SendMessage Send a Message.
+     * @param {*} topic Topic.
+     * @param {*} message Message.
+     */
     function SendMessage(topic, message) {
         if (client == null) {
             console.error("[VOSSynchronizationServer->SendMessageOnMQTT] No client.");
@@ -594,6 +656,10 @@ module.exports = function() {
         client.publish(topic, message);
     }
     
+    /**
+     * @function GetSynchronizedSessions Get Synchronized Sessions.
+     * @returns All Synchronized Sessions.
+     */
     function GetSynchronizedSessions() {
         let sessionInfos = [];
         for (session in vosSynchronizationSessions) {
@@ -602,10 +668,19 @@ module.exports = function() {
         return sessionInfos;
     }
 
+    /**
+     * @function CreateSynchronizedSession Create a synchronized Session.
+     * @param {*} id ID.
+     * @param {*} tag Tag.
+     */
     function CreateSynchronizedSession(id, tag) {
         vosSynchronizationSessions[id] = new vosSynchronizationSession(id, tag);
     }
 
+    /**
+     * @function DestroySynchronizedSession Destroy a synchronized Session.
+     * @param {*} id ID.
+     */
     function DestroySynchronizedSession(id) {
         for (session in vosSynchronizationSessions) {
             if (session == id) {
@@ -614,6 +689,11 @@ module.exports = function() {
         }
     }
     
+    /**
+     * @function GetSynchronizedSession Get a Synchronized Session.
+     * @param {*} id ID.
+     * @returns Session with ID, or null.
+     */
     function GetSynchronizedSession(id) {
         if (vosSynchronizationSessions[id] == null) {
             console.warn(`Session ${id} does not exist`);
@@ -622,6 +702,10 @@ module.exports = function() {
         return vosSynchronizationSessions[id];
     }
 
+    /**
+     * @function HandleCreateSessionMessage Handle a Create Session Message.
+     * @param {*} data Data.
+     */
     function HandleCreateSessionMessage(data) {
         if (!data.hasOwnProperty("session-id")) {
             console.warn("Create Session Message does not contain: session-id");
@@ -645,6 +729,10 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleDestroySessionMessage Handle a Destroy Session Message.
+     * @param {*} data Data.
+     */
     function HandleDestroySessionMessage(data) {
         if (!data.hasOwnProperty("session-id")) {
             console.warn("Destroy Session Message does not contain: session-id");
@@ -664,6 +752,10 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleJoinSessionMessage Handle a Join Session Message.
+     * @param {*} data Data.
+     */
     function HandleJoinSessionMessage(data) {
         if (!data.hasOwnProperty("session-id")) {
             console.warn("Join Session Message does not contain: session-id");
@@ -693,6 +785,10 @@ module.exports = function() {
         
     }
 
+    /**
+     * @function HandleExitSessionMessage Handle an Exit Session Message.
+     * @param {*} data Data.
+     */
     function HandleExitSessionMessage(data) {
         if (!data.hasOwnProperty("session-id")) {
             console.warn("Exit Session Message does not contain: session-id");
@@ -717,6 +813,10 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleHeartbeatMessage Handle a Heartbeat Message.
+     * @param {*} data Data.
+     */
     function HandleHeartbeatMessage(data) {
         if (!data.hasOwnProperty("session-id")) {
             console.warn("Heartbeat Message does not contain: session-id");
@@ -740,6 +840,10 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleSessionStateMessage Handle a Session State Message.
+     * @param {*} data Data.
+     */
     function HandleSessionStateMessage(data) {
         if (!data.hasOwnProperty("session-id")) {
             console.warn("Session State Message does not contain: session-id");
@@ -764,6 +868,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateContainerEntityMessage Handle a Create Container Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateContainerEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Container Entity Message does not contain: delete-with-client");
@@ -829,7 +938,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("scale")) {
             if (!data.scale.hasOwnProperty("x")) {
@@ -873,6 +982,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateMeshEntityMessage Handle a Create Mesh Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateMeshEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Mesh Entity Message does not contain: delete-with-client");
@@ -942,7 +1056,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("scale")) {
             if (!data.scale.hasOwnProperty("x")) {
@@ -986,6 +1100,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateCharacterEntityMessage Handle a Create Character Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateCharacterEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Character Entity Message does not contain: delete-with-client");
@@ -1055,7 +1174,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("scale")) {
             if (!data.scale.hasOwnProperty("x")) {
@@ -1099,6 +1218,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateButtonEntityMessage Handle a Create Button Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateButtonEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Button Entity Message does not contain: delete-with-client");
@@ -1146,7 +1270,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("size-percent")) {
             if (!data.size.hasOwnProperty("x")) {
@@ -1172,6 +1296,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateCanvasEntityMessage Handle a Create Canvas Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateCanvasEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Canvas Entity Message does not contain: delete-with-client");
@@ -1237,7 +1366,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("scale")) {
             if (!data.scale.hasOwnProperty("x")) {
@@ -1281,6 +1410,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateInputEntityMessage Handle a Create Input Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateInputEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Input Entity Message does not contain: delete-with-client");
@@ -1324,7 +1458,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("size-percent")) {
             if (!data.size.hasOwnProperty("x")) {
@@ -1350,6 +1484,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateLightEntityMessage Handle a Create Light Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateLightEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Light Entity Message does not contain: delete-with-client");
@@ -1415,7 +1554,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         session.AddEntityWithScale(entityuuid, data.tag, "light", data.path,
             data.parent-uuid, data.position, data.rotation, null, null,
@@ -1423,6 +1562,11 @@ module.exports = function() {
         return entityuuid;
     }
 
+    /**
+     * @function HandleCreateTerrainEntityMessage Handle a Create Terrain Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateTerrainEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Terrain Entity Message does not contain: delete-with-client");
@@ -1504,7 +1648,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("scale")) {
             if (!data.scale.hasOwnProperty("x")) {
@@ -1548,6 +1692,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateTextEntityMessage Handle a Create Text Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateTextEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Text Entity Message does not contain: delete-with-client");
@@ -1599,7 +1748,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("size-percent")) {
             if (!data.size.hasOwnProperty("x")) {
@@ -1626,6 +1775,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleCreateVoxelEntityMessage Handle a Create Voxel Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCreateVoxelEntityMessage(session, data) {
         if (!data.hasOwnProperty("delete-with-client")) {
             console.warn("Create Voxel Entity Message does not contain: delete-with-client");
@@ -1691,7 +1845,7 @@ module.exports = function() {
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
         }
-        //entityuuid = uuidv4();
+        
         entityuuid = data["entity-id"];
         if (data.hasOwnProperty("scale")) {
             if (!data.scale.hasOwnProperty("x")) {
@@ -1735,6 +1889,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleSendMessageMessage Handle a Send Message Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleSendMessageMessage(session, data) {
         if (!data.hasOwnProperty("client-id")) {
             console.warn("Send Message Message does not contain: client-id");
@@ -1758,6 +1917,11 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function HandleDeleteEntityMessage Handle a Delete Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleDeleteEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Delete Entity Message does not contain: entity-id");
@@ -1770,6 +1934,11 @@ module.exports = function() {
         session.RemoveEntity(data["entity-id"]);
     }
 
+    /**
+     * @function HandleRemoveEntityMessage Handle a Remove Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleRemoveEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Remove Entity Message does not contain: entity-id");
@@ -1782,6 +1951,11 @@ module.exports = function() {
         session.RemoveEntity(data["entity-id"]);
     }
 
+    /**
+     * @function HandlePositionEntityMessage Handle a Position Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandlePositionEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Position Entity Message does not contain: entity-id");
@@ -1812,6 +1986,11 @@ module.exports = function() {
         session.PositionEntity(data["entity-id"], data.position);
     }
 
+    /**
+     * @function HandleRotateEntityMessage Handle a Rotate Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleRotateEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Rotate Entity Message does not contain: entity-id");
@@ -1846,6 +2025,11 @@ module.exports = function() {
         session.RotateEntity(data["entity-id"], data.rotation);
     }
 
+    /**
+     * @function HandleScaleEntityMessage Handle a Scale Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleScaleEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Scale Entity Message does not contain: entity-id");
@@ -1876,6 +2060,11 @@ module.exports = function() {
         session.ScaleEntity(data["entity-id"], data.scale);
     }
 
+    /**
+     * @function HandleSizeEntityMessage Handle a Size Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleSizeEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Size Entity Message does not contain: entity-id");
@@ -1906,6 +2095,11 @@ module.exports = function() {
         session.SizeEntity(data["entity-id"], data.size);
     }
 
+    /**
+     * @function HandleCanvasTypeEntityMessage Handle a Canvas Type Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleCanvasTypeEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Canvas Type Entity Message does not contain: entity-id");
@@ -1922,6 +2116,11 @@ module.exports = function() {
         session.SetCanvasType(data["entity-id"], data["canvas-type"]);
     }
 
+    /**
+     * @function HandleHighlightStateEntityMessage Handle a Highlight State Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleHighlightStateEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Highlight State Entity Message does not contain: entity-id");
@@ -1938,6 +2137,11 @@ module.exports = function() {
         session.SetHighlightState(data["entity-id"], data.highlighted);
     }
 
+    /**
+     * @function HandleMotionEntityMessage Handle a Motion Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleMotionEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Motion Entity Message does not contain: entity-id");
@@ -1958,6 +2162,11 @@ module.exports = function() {
         session.SetMotionState(data["entity-id"], data["angular-velocity"], data.velocity, data.stationary);
     }
 
+    /**
+     * @function HandleParentEntityMessage Handle a Parent Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleParentEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Parent Entity Message does not contain: entity-id");
@@ -1970,6 +2179,11 @@ module.exports = function() {
         session.ParentEntity(data["entity-id"], data["parent-id"]);
     }
 
+    /**
+     * @function HandlePhysicalPropertiesEntityMessage Handle a Physical Properties Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandlePhysicalPropertiesEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Physical Properties Entity Message does not contain: entity-id");
@@ -1999,6 +2213,11 @@ module.exports = function() {
             data.drag, data.gravitational, data.mass);
     }
 
+    /**
+     * @function HandleVisibilityEntityMessage Handle a Visibility Entity Message.
+     * @param {*} session Session.
+     * @param {*} data Data.
+     */
     function HandleVisibilityEntityMessage(session, data) {
         if (!data.hasOwnProperty("entity-id")) {
             console.warn("Visibility Entity Message does not contain: entity-id");
@@ -2011,106 +2230,258 @@ module.exports = function() {
         session.SetVisibility(data["entity-id"], entity.visible);
     }
 
+    /**
+     * @function CanCreateSession Determine whether or not the client can create a session.
+     * @param {*} clientID Client ID.
+     * @returns Whether or not the client can create a session.
+     */
     function CanCreateSession(clientID) {
         return true;
     }
 
+    /**
+     * @function CanDestroySession Determine whether or not the client can destroy a session.
+     * @param {*} clientID Client ID.
+     * @returns Whether or not the client can destroy a session.
+     */
     function CanDestroySession(clientID) {
         return true;
     }
 
+    /**
+     * @function CanJoinSession Determine whether or not the client can join a session.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can join a session.
+     */
     function CanJoinSession(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanExitSession Determine whether or not the client can exit a session.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can exit a session.
+     */
     function CanExitSession(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanGiveHeartbeat Determine whether or not the client can give a heartbeat.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can give a heartbeat.
+     */
     function CanGiveHeartbeat(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanGetSessionState Determine whether or not the client can get the session state.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can get the session state.
+     */
     function CanGetSessionState(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateContainerEntity Determine whether or not the client can create a container entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a container entity.
+     */
     function CanCreateContainerEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateMeshEntity Determine whether or not the client can create a mesh entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a mesh entity.
+     */
     function CanCreateMeshEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateCharacterEntity Determine whether or not the client can create a character entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a character entity.
+     */
     function CanCreateCharacterEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateButtonEntity Determine whether or not the client can create a button entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a button entity.
+     */
     function CanCreateButtonEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateCanvasEntity Determine whether or not the client can create a canvas entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a canvas entity.
+     */
     function CanCreateCanvasEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateInputEntity Determine whether or not the client can create an input entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create an input entity.
+     */
     function CanCreateInputEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateLightEntity Determine whether or not the client can create a light entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a light entity.
+     */
     function CanCreateLightEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateTerrainEntity Determine whether or not the client can create a terrain entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a terrain entity.
+     */
     function CanCreateTerrainEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateTextEntity Determine whether or not the client can create a text entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a text entity.
+     */
     function CanCreateTextEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanCreateVoxelEntity Determine whether or not the client can create a voxel entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can create a voxel entity.
+     */
     function CanCreateVoxelEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanSendMessage Determine whether or not the client can send a message.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can send a message.
+     */
     function CanSendMessage(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanDeleteEntity Determine whether or not the client can delete an entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can delete an entity.
+     */
     function CanDeleteEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanRemoveEntity Determine whether or not the client can remove an entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can remove an entity.
+     */
     function CanRemoveEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanPositionEntity Determine whether or not the client can position an entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can position an entity.
+     */
     function CanPositionEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanRotateEntity Determine whether or not the client can rotate an entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can rotate an entity.
+     */
     function CanRotateEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanScaleEntity Determine whether or not the client can scale an entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can scale an entity.
+     */
     function CanScaleEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanSizeEntity Determine whether or not the client can size an entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can size an entity.
+     */
     function CanSizeEntity(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanSetEntityCanvasType Determine whether or not the client set an entity canvas type.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can set an entity canvas type.
+     */
     function CanSetEntityCanvasType(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function CanSetEntityHighlightState Determine whether or not the client can set an entity highlight state.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can set an entity highlight state.
+     */
     function CanSetEntityHighlightState(clientID, sessionID) {
         return true;
     }
 
+    /**
+     * @function Log Log a message.
+     * @param {*} text Text to log.
+     */
     function Log(text) {
         console.log(text);
         if (process.platform == "win32") {
@@ -2124,6 +2495,9 @@ module.exports = function() {
         }
     }
 
+    /**
+     * @function CheckHeartbeats Check Heartbeats.
+     */
     this.CheckHeartbeats = function()  {
         for (session in vosSynchronizationSessions) {
             sess = GetSynchronizedSession(session);

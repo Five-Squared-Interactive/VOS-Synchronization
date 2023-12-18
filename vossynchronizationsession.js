@@ -1,13 +1,40 @@
+// Copyright (c) 2019-2023 Five Squared Interactive. All rights reserved.
+
 const vosClient = require("./vosclient.js");
 const vosEntity = require("./vosentity.js");
 const uuid = require("uuid");
 
+/**
+ * @module VOSSynchronizationSession VOS Synchronization Session.
+ * @param {*} id ID.
+ * @param {*} tag Tag.
+ */
 module.exports = function(id, tag) {
+    /**
+     * Clients.
+     */
     this.clients = [];
+
+    /**
+     * Entities.
+     */
     this.entities = [];
+
+    /**
+     * ID.
+     */
     this.id = id;
+
+    /**
+     * Tag.
+     */
     this.tag = tag;
 
+    /**
+     * @function AddClient Add a Client.
+     * @param {*} clientID Client ID.
+     * @param {*} clientTag Client Tag.
+     */
     this.AddClient = function(clientID, clientTag) {
         for (client in this.clients) {
             if (client.uuid == clientID) {
@@ -19,6 +46,10 @@ module.exports = function(id, tag) {
         this.clients.push(newClient);
     }
 
+    /**
+     * @function RemoveClient Remove a Client.
+     * @param {*} clientID Client ID.
+     */
     this.RemoveClient = function(clientID) {
         this.clients.forEach(client => {
             if (client.uuid == clientID) {
@@ -35,6 +66,26 @@ module.exports = function(id, tag) {
         });
     }
 
+    /**
+     * @function AddEntityWithScale Add an Entity with a Scale.
+     * @param {*} id ID.
+     * @param {*} tag Tag.
+     * @param {*} type Type.
+     * @param {*} path Path.
+     * @param {*} parent Parent.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} scale Scale.
+     * @param {*} resources Resources.
+     * @param {*} length Length.
+     * @param {*} width Width.
+     * @param {*} height Height.
+     * @param {*} heights Heights.
+     * @param {*} text Text.
+     * @param {*} fontSize Font Size.
+     * @param {*} clientToDeleteWith Client to Delete With.
+     * @param {*} onClickEvent On Click Event.
+     */
     this.AddEntityWithScale = function(id, tag, type, path, parent, position,
         rotation, scale, resources, length, width, height, heights, text, fontSize,
         clientToDeleteWith, onClickEvent) {
@@ -54,6 +105,26 @@ module.exports = function(id, tag) {
         });
     }
 
+    /**
+     * @function AddEntityWithSize Add an Entity with a Size.
+     * @param {*} id ID.
+     * @param {*} tag Tag.
+     * @param {*} type Type.
+     * @param {*} path Path.
+     * @param {*} parent Parent.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} size Size.
+     * @param {*} resources Resources.
+     * @param {*} length Length.
+     * @param {*} width Width.
+     * @param {*} height Height.
+     * @param {*} heights Heights.
+     * @param {*} text Text.
+     * @param {*} fontSize Font Size.
+     * @param {*} clientToDeleteWith Client to Delete With.
+     * @param {*} onClickEvent On Click Event.
+     */
     this.AddEntityWithSize = function(id, tag, type, path, parent, position,
         rotation, size, resources, length, width, height, heights, text, fontSize,
         clientToDeleteWith, onClickEvent) {
@@ -73,6 +144,22 @@ module.exports = function(id, tag) {
         }
     }
 
+    /**
+     * @function AddEntityWithCanvasTransform Add an Entity with a Canvas Transform.
+     * @param {*} id ID.
+     * @param {*} tag Tag.
+     * @param {*} type Type.
+     * @param {*} path Path.
+     * @param {*} parent Parent.
+     * @param {*} positionPercent Position Percent.
+     * @param {*} sizePercent Size Percent.
+     * @param {*} clientToDeleteWith Client to Delete With.
+     * @param {*} length Length.
+     * @param {*} width Width.
+     * @param {*} height Height.
+     * @param {*} heights Heights.
+     * @param {*} onClickEvent On Click Event.
+     */
     this.AddEntityWithCanvasTransform = function(id, tag, type, path, parent, positionPercent,
         sizePercent, clientToDeleteWith, length, width, height, heights, onClickEvent) {
         for (entity in this.entities) {
@@ -91,6 +178,10 @@ module.exports = function(id, tag) {
         }
     }
 
+    /**
+     * @function RemoveEntity Remove an Entity.
+     * @param {*} id ID.
+     */
     this.RemoveEntity = function(id) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
@@ -104,6 +195,11 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->RemoveEntity] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function ParentEntity Parent an Entity.
+     * @param {*} id ID.
+     * @param {*} parent Parent.
+     */
     this.ParentEntity = function(id, parent) {
         this.entities.forEach(entity => {
             if (uuid.parse(entity.uuid).toString() == uuid.parse(id).toString()) {
@@ -114,6 +210,11 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->ParentEntity] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function SetVisibility Set an Entity's Visibility.
+     * @param {*} id ID.
+     * @param {*} visible Visibility.
+     */
     this.SetVisibility = function(id, visible) {
         this.entities.forEach(entity => {
             if (uuid.parse(entity.uuid).toString() == uuid.parse(id).toString()) {
@@ -124,6 +225,11 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->SetVisibility] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function PositionEntity Position an Entity.
+     * @param {*} id ID.
+     * @param {*} position Position.
+     */
     this.PositionEntity = function(id, position) {
         this.entities.forEach(entity => {
             if (uuid.parse(entity.uuid).toString() == uuid.parse(id).toString()) {
@@ -134,6 +240,11 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->PositionEntity] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function RotateEntity Rotate an Entity.
+     * @param {*} id ID.
+     * @param {*} rotation Rotation.
+     */
     this.RotateEntity = function(id, rotation) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
@@ -144,6 +255,11 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->RotateEntity] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function ScaleEntity Scale an Entity.
+     * @param {*} id ID.
+     * @param {*} scale Scale.
+     */
     this.ScaleEntity = function(id, scale) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
@@ -154,6 +270,11 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->ScaleEntity] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function SizeEntity Size an Entity.
+     * @param {*} id ID.
+     * @param {*} size Size.
+     */
     this.SizeEntity = function(id, size) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
@@ -164,6 +285,11 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->SizeEntity] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function SetCanvasType Set a Canvas Type.
+     * @param {*} id ID.
+     * @param {*} type Type.
+     */
     this.SetCanvasType = function(id, type) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
@@ -174,6 +300,11 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->SetCanvasType] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function SetHighlightState Set an Entity's Highlight State.
+     * @param {*} id ID.
+     * @param {*} highlighted Highlight State.
+     */
     this.SetHighlightState = function(id, highlighted) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
@@ -184,6 +315,13 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->SetHighlightState] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function SetMotionState Set an Entity's Motion State.
+     * @param {*} id ID.
+     * @param {*} angularVelocity Angular Velocity.
+     * @param {*} velocity Velocity.
+     * @param {*} stationary Stationary.
+     */
     this.SetMotionState = function(id, angularVelocity, velocity, stationary) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
@@ -196,6 +334,15 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->SetMotionState] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function SetPhysicalState Set an Entity's Physical State.
+     * @param {*} id ID.
+     * @param {*} angularDrag Angular Drag.
+     * @param {*} centerOfMass Center of Mass.
+     * @param {*} drag Drag.
+     * @param {*} gravitational Gravitational.
+     * @param {*} mass Mass.
+     */
     this.SetPhysicalState = function(id, angularDrag, centerOfMass, drag, gravitational, mass) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
@@ -210,6 +357,10 @@ module.exports = function(id, tag) {
         //console.warn(`[VOSSynchronizationSession->SetPhysicalState] Entity: ${id} does not exist`);
     }
 
+    /**
+     * @function UpdateHeartbeat Update the Hearbeat.
+     * @param {*} clientID Client ID for the Client to update the Heartbeat for.
+     */
     this.UpdateHeartbeat = function(clientID) {
         this.clients.forEach(client => {
             if (client.uuid == clientID) {

@@ -1,3 +1,5 @@
+// Copyright (c) 2019-2023 Five Squared Interactive. All rights reserved.
+
 const { argv } = require("process");
 const { v4: uuidv4 } = require('uuid');
 const prompt = require("prompt-sync")({
@@ -6,6 +8,9 @@ const prompt = require("prompt-sync")({
 const fs = require("fs");
 const VOSSynchronizationService = require("./vossynchronizationservice.js");
 
+/**
+ * Configuration File Path.
+ */
 configFilePath = "";
 if (argv.length > 4) {
     configFilePath = argv[4];
@@ -38,6 +43,10 @@ process.on('SIGINT', function() {
     process.exit();
 });
 
+/**
+ * @function ProcessCommand Process a Command.
+ * @param {*} command Command.
+ */
 function ProcessCommand(command) {
     if (command == "quit") {
         process.emit("SIGINT");
