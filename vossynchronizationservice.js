@@ -46,13 +46,13 @@ module.exports = function() {
         if (process.platform == "win32") {
             this.mosquittoProcess = spawn(".\\Mosquitto\\mosquitto.exe", ["-c", CONFIGFILENAME], {detached: true});
         } else {
-            this.mosquittoProcess = spawn("./Mosquitto/mosquitto", ["-c", CONFIGFILENAME], {detached: true});
+            this.mosquittoProcess = spawn("mosquitto", ["-c", CONFIGFILENAME], {detached: true});
         }
         this.mosquittoProcess.stdout.on('data', (data) => {
             Log(`[VOSSynchronizationService] ${data}`);
         });
         this.mosquittoProcess.stderr.on('data', (data) => {
-            Log(`[VOSSynchronizationService] err: ${data}`);
+            Log(`[VOSSynchronizationService] ${data}`);
         });
         this.mosquittoProcess.on('close', (code) => {
             Log(`[VOSSynchronizationService] MQTT server exited ${code}`);
