@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2023 Five Squared Interactive. All rights reserved.
+// Copyright (c) 2019-2024 Five Squared Interactive. All rights reserved.
 
 const { argv } = require("process");
 const { v4: uuidv4 } = require('uuid');
@@ -17,7 +17,7 @@ if (argv.length > 4) {
 }
 
 vss = new VOSSynchronizationService();
-vss.RunMQTT(argv[2], argv[3]);
+vss.RunMQTT(argv[2], argv[3], argv[5], argv[6], argv[7]);
 vss.ConnectToMQTT(argv[2]);
 
 if (configFilePath) {

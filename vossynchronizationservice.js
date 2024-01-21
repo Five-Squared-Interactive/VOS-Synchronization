@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2023 Five Squared Interactive. All rights reserved.
+// Copyright (c) 2019-2024 Five Squared Interactive. All rights reserved.
 
 const { spawn } = require("child_process");
 const mqtt = require("mqtt");
@@ -36,10 +36,13 @@ module.exports = function() {
      * @param {*} port Port.
      * @param {*} websocketsPort WebSockets Port.
      */
-    this.RunMQTT = function(port, websocketsPort = 0) {
+    this.RunMQTT = function(port, websocketsPort = 0, caFile = null, privateKeyFile = null, certFile = null) {
         var config = `listener ${port}\nprotocol mqtt`;
         if (websocketsPort > 0) {
             config = `${config}\nlistener ${websocketsPort}\nprotocol websockets`;
+            if (caFile != null && privateKeyFile != null && certFile != null) {
+                config = `${config}\ncafile ${caFile}\ncertfile ${certFile}\nkeyfile ${privateKeyFile}`;
+            }
         }
         config = `${config}\nallow_anonymous true`;
         fs.writeFileSync(CONFIGFILENAME, config);
