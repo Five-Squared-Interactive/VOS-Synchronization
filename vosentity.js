@@ -18,13 +18,34 @@
  * @param {*} width Width.
  * @param {*} height Height.
  * @param {*} heights Heights.
+ * @param {*} diffuseTextures Diffuse Textures.
+ * @param {*} normalTextures Normal Textures.
+ * @param {*} maskTextures Mask Textures.
+ * @param {*} specularValues Specular Values.
+ * @param {*} metallicValues Metallic Values.
+ * @param {*} smoothnessValues Smoothness Values.
+ * @param {*} layerMask Layer Mask.
+ * @param {*} subType Sub-Type.
  * @param {*} text Text.
  * @param {*} fontSize Font Size.
+ * @param {*} angularVelocity Angular Velocity.
+ * @param {*} velocity Velocity.
+ * @param {*} stationary Stationary.
+ * @param {*} angularDrag Angular Drag.
+ * @param {*} centerOfMass Center of Mass.
+ * @param {*} drag Drag.
+ * @param {*} gravitational Gravitational.
+ * @param {*} mass Mass.
+ * @param {*} terrainModifications Terrain Modifications.
  */
 module.exports = function(uuid, tag, type, path, parent,
     position, rotation, scalesize, isSize, isSizePercent,
     resources, onClickEvent, length, width, height, heights,
-    text, fontSize) {
+    diffuseTextures, normalTextures, maskTextures, specularValues,
+    metallicValues, smoothnessValues, layerMask, subType,
+    text, fontSize, angularVelocity, velocity, stationary,
+    angularDrag, centerOfMass, drag, gravitational, mass,
+    terrainModifications) {
         this.uuid = uuid;
         this.tag = tag;
         this.type = type;
@@ -43,14 +64,23 @@ module.exports = function(uuid, tag, type, path, parent,
         this.width = width;
         this.height = height;
         this.heights = heights;
+        this.diffuseTextures = diffuseTextures;
+        this.normalTextures = normalTextures;
+        this.maskTextures = maskTextures;
+        this.specularValues = specularValues;
+        this.metallicValues = metallicValues;
+        this.smoothnessValues = smoothnessValues;
+        this.layerMask = layerMask;
+        this.subType = subType;
         this.text = text;
         this.fontSize = fontSize;
-        this.angularVelocity = { x: 0, y: 0, z: 0 };
-        this.velocity = { x: 0, y: 0, z: 0 };
-        this.stationary = true;
-        this.angularDrag = 0;
-        this.centerOfMass = { x: 0, y: 0, z: 0 };
-        this.drag = 0;
-        this.gravitational = false;
-        this.mass = 0;
+        this.angularVelocity = angularVelocity;
+        this.velocity = velocity;
+        this.stationary = stationary;
+        this.angularDrag = angularDrag;
+        this.centerOfMass = centerOfMass;
+        this.drag = drag;
+        this.gravitational = gravitational;
+        this.mass = mass;
+        this.terrainModifications = terrainModifications;
 };

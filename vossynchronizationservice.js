@@ -19,7 +19,137 @@ module.exports = function() {
     /**
      * Version.
      */
-    this.VERSION = "0.0.1"
+    this.VERSION = "1.1.0"
+
+    /**
+     * Callback for checking Create Session Authorization.
+     */
+    this.createSessionAuthCallback = null;
+
+    /**
+     * Callback for checking Destroy Session Authorization.
+     */
+    this.destroySessionAuthCallback = null;
+
+    /**
+     * Callback for checking Join Session Authorization.
+     */
+    this.joinSessionAuthCallback = null;
+
+    /**
+     * Callback for checking Exit Session Authorization.
+     */
+    this.exitSessionAuthCallback = null;
+
+    /**
+     * Callback for checking Give Heartbeat Authorization.
+     */
+    this.giveHeartbeatAuthCallback = null;
+
+    /**
+     * Callback for checking Get Session State Authorization.
+     */
+    this.getSessionStateAuthCallback = null;
+
+    /**
+     * Callback for checking Create Container Entity Authorization.
+     */
+    this.createContainerEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Create Mesh Entity Authorization.
+     */
+    this.createMeshEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Create Character Entity Authorization.
+     */
+    this.createCharacterEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Create Button Entity Authorization.
+     */
+    this.createButtonEntityAuthCallback = null;
+    
+    /**
+     * Callback for checking Create Canvas Entity Authorization.
+     */
+    this.createCanvasEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Create Input Entity Authorization.
+     */
+    this.createInputEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Create Light Entity Authorization.
+     */
+    this.createLightEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Create Terrain Entity Authorization.
+     */
+    this.createTerrainEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Create Text Entity Authorization.
+     */
+    this.createTextEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Create Voxel Entity Authorization.
+     */
+    this.createVoxelEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Send Message Authorization.
+     */
+    this.sendMessageAuthCallback = null;
+
+    /**
+     * Callback for checking Delete Entity Authorization.
+     */
+    this.deleteEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Remove Entity Authorization.
+     */
+    this.removeEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Position Entity Authorization.
+     */
+    this.positionEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Rotate Entity Authorization.
+     */
+    this.rotateEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Scale Entity Authorization.
+     */
+    this.scaleEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Size Entity Authorization.
+     */
+    this.sizeEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Modify Terrain Entity Authorization.
+     */
+    this.modifyTerrainEntityAuthCallback = null;
+
+    /**
+     * Callback for checking Set Entity Canvas Type Authorization.
+     */
+    this.setEntityCanvasTypeAuthCallback = null;
+
+    /**
+     * Callback for checking Set Entity Highlight State Authorization.
+     */
+    this.setEntityHighlightStateAuthCallback = null;
 
     /**
      * Client.
@@ -103,7 +233,13 @@ module.exports = function() {
      */
     this.CreateSession = function(id, tag) {
         Log(`[VOSSynchronizationService] Creating session ${id} with tag ${tag}`);
-        return CreateSynchronizedSession(id, tag);
+        CreateSynchronizedSession(id, tag);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": id,
+            "session-tag": tag
+        };
+        SendMessage("vos/session/new", messageToSend);
     }
 
     /**
@@ -112,7 +248,774 @@ module.exports = function() {
      */
     this.DeleteSession = function(id) {
         Log(`[VOSSynchronizationService] Deleting session ${id}`);
-        return DestroySynchronizedSession(id);
+        DestroySynchronizedSession(id);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": id
+        };
+        SendMessage("vos/session/closed", );
+    }
+
+    /**
+     * @function JoinSession Join a Session.
+     * @param {*} session Session.
+     * @param {*} clientID Client ID.
+     * @param {*} clientTag Client Tag.
+     */
+    this.JoinSession = function(session, clientID, clientTag) {
+        session.AddClient(clientID, clientTag);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "client-tag": clientTag
+        };
+        SendMessage("vos/status/" + session.id + "/newclient", );
+    }
+
+    /**
+     * @function ExitSession Exit a Session.
+     * @param {*} session Session.
+     * @param {*} clientID Client ID.
+     */
+    this.ExitSession = function(session, clientID) {
+        session.RemoveClient(clientID);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID
+        };
+        SendMessage("vos/status/" + session.id + "/clientleft", );
+    }
+
+    /**
+     * @function CreateContainerEntity Create a Container Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} parentID Parent ID.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} scale Scale.
+     * @param {*} isSize Whether or not the scale is a size.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     */
+    this.CreateContainerEntity = function(session, entityID, entityTag, parentID,
+        position, rotation, scale, clientToDeleteWith) {
+        session.AddEntityWithScale(entityID, entityTag, "container", null,
+            parentID, position, rotation, scale, null,
+            null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+            { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+            clientToDeleteWith, null);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "tag": entityTag,
+            "parent-id": parentID,
+            "position": position,
+            "rotation": rotation,
+            "scale": scale
+        };
+        SendMessage("vos/status/" + session.id + "/createcontainerentity", messageToSend);
+    }
+
+    /**
+     * @function CreateMeshEntity Create a Mesh Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} path Path to mesh resource.
+     * @param {*} parentID Parent ID.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} scale Scale.
+     * @param {*} isSize Whether or not the scale is a size.
+     * @param {*} resources Mesh resources.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     */
+    this.CreateMeshEntity = function(session, entityID, entityTag, path, parentID,
+        position, rotation, scale, isSize, resources, clientToDeleteWith) {
+        if (isSize) {
+            session.AddEntityWithSize(entityID, entityTag, "mesh", path,
+                parentID, position, rotation, scale, resources,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
+
+            messageToSend = {
+                "message-id": uuidv4(),
+                "session-id": session.id,
+                "client-id": clientID,
+                "entity-id": entityID,
+                "tag": entityTag,
+                "parent-id": parentID,
+                "path": path,
+                "resources": resources,
+                "position": position,
+                "rotation": rotation,
+                "size": scale
+            };
+            SendMessage("vos/status/" + session.id + "/createmeshentity", messageToSend);
+        }
+        else {
+            session.AddEntityWithScale(entityID, entityTag, "mesh", path,
+            parentID, position, rotation, scale, resources,
+            null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+            { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+            clientToDeleteWith, null);
+            messageToSend = {
+                "message-id": uuidv4(),
+                "session-id": session.id,
+                "client-id": clientID,
+                "entity-id": entityID,
+                "tag": entityTag,
+                "parent-id": parentID,
+                "path": path,
+                "resources": resources,
+                "position": position,
+                "rotation": rotation,
+                "scale": scale
+            };
+            SendMessage("vos/status/" + session.id + "/createmeshentity", messageToSend);
+        }
+    }
+
+    /**
+     * @function CreateCharacterEntity Create a Character Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} path Path to mesh resource.
+     * @param {*} parentID Parent ID.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} scale Scale.
+     * @param {*} isSize Whether or not the scale is a size.
+     * @param {*} resources Mesh resources.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     */
+    this.CreateCharacterEntity = function(session, entityID, entityTag, path, parentID,
+        position, rotation, scale, isSize, clientToDeleteWith) {
+        if (isSize) {
+            session.AddEntityWithSize(entityID, entityTag, "character", path,
+                parentID, position, rotation, scale, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
+            messageToSend = {
+                "message-id": uuidv4(),
+                "session-id": session.id,
+                "client-id": clientID,
+                "entity-id": entityID,
+                "tag": entityTag,
+                "parent-id": parentID,
+                "path": path,
+                "position": position,
+                "rotation": rotation,
+                "size": scale
+            };
+            SendMessage("vos/status/" + session.id + "/createcharacterentity", messageToSend);
+        }
+        else {
+            session.AddEntityWithScale(entityID, entityTag, "character", path,
+                parentID, position, rotation, scale, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
+            messageToSend = {
+                "message-id": uuidv4(),
+                "session-id": session.id,
+                "client-id": clientID,
+                "entity-id": entityID,
+                "tag": entityTag,
+                "parent-id": parentID,
+                "path": path,
+                "position": position,
+                "rotation": rotation,
+                "scale": scale
+            };
+            SendMessage("vos/status/" + session.id + "/createcharacterentity", messageToSend);
+        }
+    }
+
+    /**
+     * @function CreateButtonEntity Create a Button Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} parentID Parent ID.
+     * @param {*} positionPercent Position Percent.
+     * @param {*} sizePercent Size Percent.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     * @param {*} onClick On click event.
+     */
+    this.CreateButtonEntity = function(session, entityID, entityTag, parentID,
+        positionPercent, sizePercent, clientToDeleteWith, onClick) {
+            session.AddEntityWithCanvasTransform(entityID, entityTag, "button", null,
+            parentID, positionPercent, sizePercent, null, null, null,
+            clientToDeleteWith, onClick);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "tag": entityTag,
+            "parent-id": parentID,
+            "path": path,
+            "position-percent": positionPercent,
+            "size-percent": sizePercent,
+            "on-click": onClick
+        };
+        SendMessage("vos/status/" + session.id + "/createbuttonentity", messageToSend);
+    }
+
+    /**
+     * @function CreateCanvasEntity Create a Canvas Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} path Path.
+     * @param {*} parentID Parent ID.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} scale Scale.
+     * @param {*} isSize Whether or not the scale is a size.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     */
+    this.CreateCanvasEntity = function(session, entityID, entityTag, path, parentID,
+        position, rotation, scale, isSize, clientToDeleteWith) {
+        if (isSize) {
+            session.AddEntityWithSize(entityID, entityTag, "canvas", path,
+                parentID, position, rotation, scale, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
+            messageToSend = {
+                "message-id": uuidv4(),
+                "session-id": session.id,
+                "client-id": clientID,
+                "entity-id": entityID,
+                "tag": entityTag,
+                "parent-id": parentID,
+                "path": path,
+                "position": position,
+                "rotation": rotation,
+                "size": scale
+            };
+            SendMessage("vos/status/" + session.id + "/createcanvasentity", messageToSend);
+        }
+        else {
+            session.AddEntityWithScale(entityID, entityTag, "canvas", path,
+                parentID, position, rotation, scale, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
+            messageToSend = {
+                "message-id": uuidv4(),
+                "session-id": session.id,
+                "client-id": clientID,
+                "entity-id": entityID,
+                "tag": entityTag,
+                "parent-id": parentID,
+                "path": path,
+                "position": position,
+                "rotation": rotation,
+                "scale": scale
+            };
+            SendMessage("vos/status/" + session.id + "/createcanvasentity", messageToSend);
+        }
+    }
+
+    /**
+     * @function CreateInputEntity Create an Input Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} parentID Parent ID.
+     * @param {*} positionPercent Position Percent.
+     * @param {*} sizePercent Size Percent.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     */
+    this.CreateInputEntity = function(session, entityID, entityTag, parentID,
+        positionPercent, sizePercent, clientToDeleteWith) {
+            session.AddEntityWithCanvasTransform(entityID, entityTag, "input", null,
+            parentID, positionPercent, sizePercent, null, null, null,
+            clientToDeleteWith, null);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "tag": entityTag,
+            "parent-id": parentID,
+            "path": path,
+            "position-percent": positionPercent,
+            "size-percent": sizePercent
+        };
+        SendMessage("vos/status/" + session.id + "/createinputentity", messageToSend);
+    }
+
+    /**
+     * @function CreateLightEntity Create a Light Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} path Path.
+     * @param {*} parentID Parent ID.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     */
+    this.CreateLightEntity = function(session, entityID, entityTag, path, parentID,
+        position, rotation, clientToDeleteWith) {
+        session.AddEntityWithScale(entityID, entityTag, "light", path,
+            parentID, position, rotation, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+            { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+            clientToDeleteWith, null);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "tag": entityTag,
+            "parent-id": parentID,
+            "path": path,
+            "position": position,
+            "rotation": rotation
+        };
+        SendMessage("vos/status/" + session.id + "/createlightentity", messageToSend);
+    }
+
+    /**
+     * @function CreateTerrainEntity Create a Terrain Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} path Path.
+     * @param {*} parentID Parent ID.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} scale Scale.
+     * @param {*} isSize Whether or not the scale is a size.
+     * @param {*} length Length.
+     * @param {*} width Width.
+     * @param {*} height Height.
+     * @param {*} heights Heights.
+     * @param {*} diffuseTexture Diffuse Texture.
+     * @param {*} normalTexture Normal Texture.
+     * @param {*} maskTexture Mask Texture.
+     * @param {*} specularValues Specular Values.
+     * @param {*} metallicValues Metallic Values.
+     * @param {*} smoothnessValues Smoothness Values.
+     * @param {*} layerMask Layer Mask.
+     * @param {*} type Type.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     */
+    this.CreateTerrainEntity = function(session, entityID, entityTag, path, parentID,
+        position, rotation, length, width, height, heights, diffuseTexture,
+        normalTexture, maskTexture, specularValues, metallicValues, smoothnessValues,
+        layerMask, type, modifications, clientToDeleteWith) {
+        session.AddEntityWithScale(entityID, entityTag, "terrain", path,
+            parentID, position, rotation, null, null,
+            length, width, height, heights, diffuseTexture, normalTexture, maskTexture,
+            specularValues, metallicValues, smoothnessValues, layerMask, type, null, null,
+            { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+            { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, modifications,
+            clientToDeleteWith, null);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "tag": entityTag,
+            "parent-id": parentID,
+            "path": path,
+            "position": position,
+            "rotation": rotation,
+            "length": length,
+            "width": width,
+            "height": height,
+            "heights": heights,
+            "diffuse-texture": diffuseTexture,
+            "normal-texture": normalTexture,
+            "mask-texture": maskTexture,
+            "specular-values": specularValues,
+            "metallic-values": metallicValues,
+            "smoothness-values": smoothnessValues,
+            "layer-mask": layerMask,
+            "type": type,
+            "modifications": modifications
+        };
+        SendMessage("vos/status/" + session.id + "/createterrainentity", messageToSend);
+    }
+
+    /**
+     * @function CreateTextEntity Create a Text Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} parentID Parent ID.
+     * @param {*} positionPercent Position Percent.
+     * @param {*} sizePercent Size Percent.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     * @param {*} text Text.
+     * @param {*} fontSize Font Size.
+     */
+    this.CreateTextEntity = function(session, entityID, entityTag, parentID,
+        positionPercent, sizePercent, clientToDeleteWith, text, fontSize) {
+            session.AddEntityWithCanvasTransform(entityID, entityTag, "text", null,
+            parentID, positionPercent, sizePercent, null, text, fontSize,
+            clientToDeleteWith, null);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "tag": entityTag,
+            "parent-id": parentID,
+            "path": path,
+            "position-percent": positionPercent,
+            "size-percent": sizePercent,
+            "text": text,
+            "font-size": fontSize
+        };
+        SendMessage("vos/status/" + session.id + "/createtextentity", messageToSend);
+    }
+
+    /**
+     * @function CreateVoxelEntity Create a Voxel Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} entityTag Entity Tag.
+     * @param {*} path Path.
+     * @param {*} parentID Parent ID.
+     * @param {*} position Position.
+     * @param {*} rotation Rotation.
+     * @param {*} scale Scale.
+     * @param {*} isSize Whether or not the scale is a size.
+     * @param {*} resources Resources.
+     * @param {*} clientToDeleteWith Client to delete entity with.
+     */
+    this.CreateVoxelEntity = function(session, entityID, entityTag, path, parentID,
+        position, rotation, scale, isSize, resources, clientToDeleteWith) {
+        if (isSize) {
+            session.AddEntityWithSize(entityID, entityTag, "voxel", path,
+                parentID, position, rotation, scale, resources,
+                null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
+            messageToSend = {
+                "message-id": uuidv4(),
+                "session-id": session.id,
+                "client-id": clientID,
+                "entity-id": entityID,
+                "tag": entityTag,
+                "parent-id": parentID,
+                "path": path,
+                "position": position,
+                "rotation": rotation,
+                "size": scale
+            };
+            SendMessage("vos/status/" + session.id + "/createvoxelentity", messageToSend);
+        }
+        else {
+            session.AddEntityWithScale(entityID, entityTag, "voxel", path,
+            parentID, position, rotation, scale, resources,
+            null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+            { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+            clientToDeleteWith, null);
+            messageToSend = {
+                "message-id": uuidv4(),
+                "session-id": session.id,
+                "client-id": clientID,
+                "entity-id": entityID,
+                "tag": entityTag,
+                "parent-id": parentID,
+                "path": path,
+                "position": position,
+                "rotation": rotation,
+                "scale": scale
+            };
+            SendMessage("vos/status/" + session.id + "/createvoxelentity", messageToSend);
+        }
+    }
+
+    /**
+     * @function SendMessageMessage Send a Message through VSS.
+     * @param {*} topic Topic.
+     * @param {*} message Message.
+     */
+    this.SendMessageMessage = function(topic, message) {
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "topic": topic,
+            "message": message
+        };
+        SendMessage("vos/status/" + session.id + "/message/create", messageToSend);
+    }
+
+    /**
+     * @function DeleteEntity Delete an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     */
+    this.DeleteEntity = function(session, entityID) {
+        session.RemoveEntity(entityID);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/delete", messageToSend);
+    }
+
+    /**
+     * @function RemoveEntity Remove an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     */
+    this.RemoveEntity = function(session, entityID) {
+        session.RemoveEntity(entityID);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/remove", messageToSend);
+    }
+
+    /**
+     * @function PositionEntity Position an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} position Position.
+     */
+    this.PositionEntity = function(session, entityID, position) {
+        session.PositionEntity(entityID, position);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "position": position
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/position", messageToSend);
+    }
+
+    /**
+     * @function RotateEntity Rotate an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} rotation Rotation.
+     */
+    this.RotateEntity = function(session, entityID, rotation) {
+        session.RotateEntity(entityID, rotation);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "rotation": rotation
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/rotation", messageToSend);
+    }
+
+    /**
+     * @function ScaleEntity Scale an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} scale Scale.
+     */
+    this.ScaleEntity = function(session, entityID, scale) {
+        session.ScaleEntity(entityID, scale);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "scale": scale
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/scale", messageToSend);
+    }
+
+    /**
+     * @function SizeEntity Size an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} size Size.
+     */
+    this.SizeEntity = function(session, entityID, size) {
+        session.SizeEntity(entityID, size);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "size": size
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/size", messageToSend);
+    }
+
+    /**
+     * @function ModifyTerrainEntity Modify a Terrain Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} modification Modification.
+     * @param {*} position Position.
+     * @param {*} brushType Brush Type.
+     * @param {*} layer Layer.
+     */
+    this.ModifyTerrainEntity = function(session, entityID,
+        modification, position, brushType, layer) {
+        session.ModifyTerrainEntity(entityID, modification, position, brushType, layer);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "modification": modification,
+            "position": position,
+            "brush-type": brushType,
+            "layer": layer
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/terrain-mod", messageToSend);
+    }
+
+    /**
+     * @function SetCanvasType Set the Canvas Type of an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} type Type.
+     */
+    this.SetCanvasType = function(session, entityID, type) {
+        session.SetCanvasType(entityID, type);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "canvas-type": type
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/canvastype", messageToSend);
+    }
+
+    /**
+     * @function SetHighlightState Set the Highlight State of an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} highlighted Highlighted.
+     */
+    this.SetHighlightState = function(session, entityID, highlighted) {
+        session.SetHighlightState(entityID, highlighted);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "highlighted": highlighted
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/highlight", messageToSend);
+    }
+
+    /**
+     * @function SetMotionState Set the Motion State of an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} angularVelocity Angular Velocity.
+     * @param {*} velocity Velocity.
+     * @param {*} stationary Stationary.
+     */
+    this.SetMotionState = function(session, entityID, angularVelocity, velocity, stationary) {
+        session.SetMotionState(entityID, angularVelocity, velocity, stationary);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "angular-velocity": angularVelocity,
+            "velocity": velocity,
+            "stationary": stationary
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/motion", messageToSend);
+    }
+
+    /**
+     * @function ParentEntity Parent an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} parentID Parent ID.
+     */
+    this.ParentEntity = function(session, entityID, parentID) {
+        session.ParentEntity(entityID, parentID);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "parent-id": parentID
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/parent", messageToSend);
+    }
+
+    /**
+     * @function SetPhysicalState Set the Physical State of an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity.
+     * @param {*} angularDrag Angular Drag.
+     * @param {*} centerOfMass Center of Mass.
+     * @param {*} drag Drag.
+     * @param {*} gravitational Gravitational.
+     * @param {*} mass Mass.
+     */
+    this.SetPhysicalState = function(session, entityID, angularDrag, centerOfMass, drag, gravitational, mass) {
+        session.SetPhysicalState(entityID, angularDrag, centerOfMass, drag, gravitational, mass);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": entityID,
+            "angular-drag": angularDrag,
+            "center-of-mass": centerOfMass,
+            "drag": drag,
+            "gravitational": gravitational,
+            "mass": mass
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/physicalproperties", messageToSend);
+    }
+
+    /**
+     * @function SetVisibility Set the Visibility of an Entity.
+     * @param {*} session Session.
+     * @param {*} entityID Entity ID.
+     * @param {*} visibility Visibility.
+     */
+    this.SetVisibility = function(session, entityID, visibility) {
+        session.SetVisibility(entityID, visibility);
+        messageToSend = {
+            "message-id": uuidv4(),
+            "session-id": session.id,
+            "client-id": clientID,
+            "entity-id": clientTag,
+            "visible": visibility
+        };
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/visibility", messageToSend);
     }
 
     /**
@@ -513,6 +1416,26 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleSizeEntityMessage(session, JSON.parse(message));
+                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnMessage = message;
+                    returnMessage["message-id"] = uuidv4();
+                    delete returnMessage["client-id"];
+                    SendMessage(returnTopic, returnMessage);
+                }
+                else if (topic.startsWith("vos/request/") && topic.endsWith("terrain-mod")) {
+                    ids = topic.replace("vos/request/", "").replace("/terrain-mod", "").split("/entity/");
+                    if (ids.length != 2) {
+                        console.error(`[VOSSynchronizationService->ProcessMessage] Invalid message topic ${topic}`);
+                        return;
+                    }
+                    sessionUUID = ids[0];
+                    session = GetSynchronizedSession(sessionUUID);
+                    if (session == null) {
+                        console.error(`[VOSSynchronizationService->ProcessMessage] Unknown session ID ${sessionUUID}`);
+                        return;
+                    }
+                    entityUUID = ids[1];
+                    HandleModifyTerrainEntityMessage(session, JSON.parse(message));
                     returnTopic = topic.replace("vos/request", "vos/status/");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
@@ -956,9 +1879,12 @@ module.exports = function() {
                 console.warn("Create Container Entity Message does not contain: scale.z");
                 return;
             }
-            session.AddEntityWithScale(entityuuid, data.tag, "container", data.path,
+            session.AddEntityWithScale(entityuuid, data.tag, "container", null,
                 data["parent-uuid"], data.position, data.rotation, data.scale, null,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -974,9 +1900,12 @@ module.exports = function() {
                 console.warn("Create Container Entity Message does not contain: size.z");
                 return;
             }
-            session.AddEntityWithSize(entityuuid, data.tag, "container", data.path,
-                data.parent-uuid, data.position, data.rotation, data.size, null,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+            session.AddEntityWithSize(entityuuid, data.tag, "container", null,
+                data["parent-uuid"], data.position, data.rotation, data.scale, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -1076,7 +2005,10 @@ module.exports = function() {
             }
             session.AddEntityWithScale(entityuuid, data.tag, "mesh", data.path,
                 data["parent-uuid"], data.position, data.rotation, data.scale, data.resources,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -1093,8 +2025,11 @@ module.exports = function() {
                 return;
             }
             session.AddEntityWithSize(entityuuid, data.tag, "mesh", data.path,
-                data.parent-uuid, data.position, data.rotation, data.size, data.resources,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+                data["parent-uuid"], data.position, data.rotation, data.scale, data.resources,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -1194,7 +2129,10 @@ module.exports = function() {
             }
             session.AddEntityWithScale(entityuuid, data.tag, "character", data.path,
                 data["parent-uuid"], data.position, data.rotation, data.scale, data.resources,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -1211,8 +2149,11 @@ module.exports = function() {
                 return;
             }
             session.AddEntityWithSize(entityuuid, data.tag, "character", data.path,
-                data.parent-uuid, data.position, data.rotation, data.size, data.resources,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+                data["parent-uuid"], data.position, data.rotation, data.scale, data.resources,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -1288,9 +2229,9 @@ module.exports = function() {
                 console.warn("Create Button Entity Message does not contain: size.z");
                 return;
             }
-            session.AddEntityWithCanvasTransform(entityuuid, data.tag, "button", data.path,
-                data.parent-uuid, data["position-percent"], null, data["size-percent"],
-                null, null, null, null, null, null, null, clientToDeleteWith, entity["on-click"]);
+            session.AddEntityWithCanvasTransform(entityuuid, data.tag, "button", null,
+                data.parent-uuid, data["position-percent"], data["size-percent"],
+                null, null, null, clientToDeleteWith, entity["on-click"]);
             return entityuuid;
         }
         else {
@@ -1384,9 +2325,12 @@ module.exports = function() {
                 console.warn("Create Canvas Entity Message does not contain: scale.z");
                 return;
             }
-            session.AddEntityWithScale(entityuuid, data.tag, "canvas", data.path,
+            session.AddEntityWithScale(entityuuid, data.tag, "canvas", null,
                 data["parent-uuid"], data.position, data.rotation, data.scale, null,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -1402,9 +2346,12 @@ module.exports = function() {
                 console.warn("Create Canvas Entity Message does not contain: size.z");
                 return;
             }
-            session.AddEntityWithSize(entityuuid, data.tag, "canvas", data.path,
-                data.parent-uuid, data.position, data.rotation, data.size, null,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+            session.AddEntityWithSize(entityuuid, data.tag, "canvas", null,
+                data["parent-uuid"], data.position, data.rotation, data.scale, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -1476,9 +2423,9 @@ module.exports = function() {
                 console.warn("Create Input Entity Message does not contain: size.z");
                 return;
             }
-            session.AddEntityWithCanvasTransform(entityuuid, data.tag, "input", data.path,
-                data.parent-uuid, data["position-percent"], null, data["size-percent"],
-                null, clientToDeleteWith, null, null, null, null, null, null, entity["on-click"]);
+            session.AddEntityWithCanvasTransform(entityuuid, data.tag, "input", null,
+                data.parent-uuid, data["position-percent"], data["size-percent"],
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -1559,9 +2506,12 @@ module.exports = function() {
         }
         
         entityuuid = data["entity-id"];
-        session.AddEntityWithScale(entityuuid, data.tag, "light", data.path,
-            data.parent-uuid, data.position, data.rotation, null, null,
-            null, null, null, null, null, null, clientToDeleteWith, null);
+        session.AddEntityWithScale(entityuuid, data.tag, "light", null,
+            data["parent-uuid"], data.position, data.rotation, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+            { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+            clientToDeleteWith, null);
         return entityuuid;
     }
 
@@ -1647,6 +2597,42 @@ module.exports = function() {
             console.warn("Create Terrain Entity Message does not contain: heights");
             return;
         }
+        if (!data.hasOwnProperty("diffuse-texture")) {
+            console.warn("Create Terrain Entity Message does not contain: diffuse-texture");
+            return;
+        }
+        if (!data.hasOwnProperty("normal-texture")) {
+            console.warn("Create Terrain Entity Message does not contain: normal-texture");
+            return;
+        }
+        if (!data.hasOwnProperty("mask-texture")) {
+            console.warn("Create Terrain Entity Message does not contain: mask-texture");
+            return;
+        }
+        if (!data.hasOwnProperty("specular-values")) {
+            console.warn("Create Terrain Entity Message does not contain: specular-values");
+            return;
+        }
+        if (!data.hasOwnProperty("metallic-values")) {
+            console.warn("Create Terrain Entity Message does not contain: metallic-values");
+            return;
+        }
+        if (!data.hasOwnProperty("smoothness-values")) {
+            console.warn("Create Terrain Entity Message does not contain: smoothness-values");
+            return;
+        }
+        if (!data.hasOwnProperty("layer-mask")) {
+            console.warn("Create Terrain Entity Message does not contain: layer-mask");
+            return;
+        }
+        if (!data.hasOwnProperty("type")) {
+            console.warn("Create Terrain Entity Message does not contain: layer-mask");
+            return;
+        }
+        if (!data.hasOwnProperty("terrain-modification")) {
+            console.warn("Create Terrain Entity Message does not contain: terrain-modification");
+            return;
+        }
         clientToDeleteWith = null;
         if (data["delete-with-client"] == true) {
             clientToDeleteWith = data["client-id"];
@@ -1668,7 +2654,12 @@ module.exports = function() {
             }
             session.AddEntityWithScale(entityuuid, data.tag, "terrain", data.path,
                 data["parent-uuid"], data.position, data.rotation, data.scale, null,
-                data.length, data.width, data.height, data.heights, null, null, clientToDeleteWith, null);
+                data.length, data.width, data.height, data.heights, data["diffuse-texture"],
+                data["normal-texture"], data["mask-texture"], data["specular-values"],
+                data["metallic-values"], data["smoothness-values"], data["layer-mask"], data["type"],
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, data["terrain-modification"],
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -1685,8 +2676,13 @@ module.exports = function() {
                 return;
             }
             session.AddEntityWithSize(entityuuid, data.tag, "terrain", data.path,
-                data.parent-uuid, data.position, data.rotation, data.size, null,
-                data.length, data.width, data.height, data.heights, null, null, clientToDeleteWith, null);
+                data["parent-uuid"], data.position, data.rotation, data.scale, null,
+                data.length, data.width, data.height, data.heights, data["diffuse-texture"],
+                data["normal-texture"], data["mask-texture"], data["specular-values"],
+                data["metallic-values"], data["smoothness-values"], data["layer-mask"], data["type"],
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, data["terrain-modification"],
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -1766,10 +2762,9 @@ module.exports = function() {
                 console.warn("Create Text Entity Message does not contain: size.z");
                 return;
             }
-            session.AddEntityWithCanvasTransform(entityuuid, data.tag, "text", data.path,
-                data.parent-uuid, data["position-percent"], null, data["size-percent"],
-                null, clientToDeleteWith, null, null, null, null, entity.text,
-                entity["font-size"], entity["on-click"]);
+            session.AddEntityWithCanvasTransform(entityuuid, data.tag, "text", null,
+                data.parent-uuid, data["position-percent"], data["size-percent"],
+                null, entity.text, entity["font-size"],  clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -1863,9 +2858,12 @@ module.exports = function() {
                 console.warn("Create Voxel Entity Message does not contain: scale.z");
                 return;
             }
-            session.AddEntityWithScale(entityuuid, data.tag, "voxel", data.path,
-                data["parent-uuid"], data.position, data.rotation, data.scale, data.resources,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+            session.AddEntityWithScale(entityuuid, data.tag, "voxel", null,
+                data["parent-uuid"], data.position, data.rotation, data.scale, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -1881,9 +2879,12 @@ module.exports = function() {
                 console.warn("Create Voxel Entity Message does not contain: size.z");
                 return;
             }
-            session.AddEntityWithSize(entityuuid, data.tag, "voxel", data.path,
-                data.parent-uuid, data.position, data.rotation, data.size, data.resources,
-                null, null, null, null, null, null, clientToDeleteWith, null);
+            session.AddEntityWithSize(entityuuid, data.tag, "voxel", null,
+                data["parent-uuid"], data.position, data.rotation, data.scale, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
+                { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
+                clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -2083,7 +3084,7 @@ module.exports = function() {
                 return;
             }
             if (!data.size.hasOwnProperty("y")) {
-                console.warn("Size Entity Message does not contain: Size.y");
+                console.warn("Size Entity Message does not contain: size.y");
                 return;
             }
             if (!data.size.hasOwnProperty("z")) {
@@ -2096,6 +3097,49 @@ module.exports = function() {
             return;
         }
         session.SizeEntity(data["entity-id"], data.size);
+    }
+
+    function HandleModifyTerrainEntityMessage(session, data) {
+        if (!data.hasOwnProperty("entity-id")) {
+            console.warn("Modify Terrain Entity Message does not contain: entity-id");
+            return;
+        }
+        if (!data.hasOwnProperty("modification")) {
+            console.warn("Modify Terrain Entity Message does not contain: modification");
+            return;
+        }
+        if (!data.hasOwnProperty("position")) {
+            console.warn("Modify Terrain Entity Message does not contain: position");
+            return;
+        }
+        else {
+            if (!data.position.hasOwnProperty("x")) {
+                console.warn("Modify Terrain Entity Message does not contain: position.x");
+                return;
+            }
+            if (!data.position.hasOwnProperty("y")) {
+                console.warn("Modify Terrain Entity Message does not contain: position.y");
+                return;
+            }
+            if (!data.position.hasOwnProperty("z")) {
+                console.warn("Modify Terrain Entity Message does not contain: position.z");
+                return;
+            }
+        }
+        if (!data.hasOwnProperty("brush-type")) {
+            console.warn("Modify Terrain Entity Message does not contain: brush-type");
+            return;
+        }
+        if (!data.hasOwnProperty("layer")) {
+            console.warn("Modify Terrain Entity Message does not contain: layer");
+            return;
+        }
+        if (!CanModifyTerrainEntity(data["client-id"], session.id)) {
+            Log(`Client ${data["client-id"]} is not allowed to modify a terrain entity in session ${session.id}`);
+            return;
+        }
+        session.ModifyTerrainEntity(data["entity-id"],
+            data.modification, data.position, data["brush-type"], data.layer);
     }
 
     /**
@@ -2238,7 +3282,13 @@ module.exports = function() {
      * @param {*} clientID Client ID.
      * @returns Whether or not the client can create a session.
      */
-    function CanCreateSession(clientID) {
+    this.CanCreateSession = function(clientID) {
+        if (this.createSessionAuthCallback != null) {
+            if (this.createSessionAuthCallback(clientID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2247,7 +3297,13 @@ module.exports = function() {
      * @param {*} clientID Client ID.
      * @returns Whether or not the client can destroy a session.
      */
-    function CanDestroySession(clientID) {
+    this.CanDestroySession = function(clientID) {
+        if (this.destroySessionAuthCallback != null) {
+            if (this.destroySessionAuthCallback(clientID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2257,7 +3313,13 @@ module.exports = function() {
      * @param {*} sessionID Session ID
      * @returns Whether or not the client can join a session.
      */
-    function CanJoinSession(clientID, sessionID) {
+    this.CanJoinSession = function(clientID, sessionID) {
+        if (this.joinSessionAuthCallback != null) {
+            if (this.joinSessionAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2267,7 +3329,13 @@ module.exports = function() {
      * @param {*} sessionID Session ID
      * @returns Whether or not the client can exit a session.
      */
-    function CanExitSession(clientID, sessionID) {
+    this.CanExitSession = function(clientID, sessionID) {
+        if (this.exitSessionAuthCallback != null) {
+            if (this.exitSessionAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2277,7 +3345,13 @@ module.exports = function() {
      * @param {*} sessionID Session ID
      * @returns Whether or not the client can give a heartbeat.
      */
-    function CanGiveHeartbeat(clientID, sessionID) {
+    this.CanGiveHeartbeat = function(clientID, sessionID) {
+        if (this.giveHeartbeatAuthCallback != null) {
+            if (this.GiveHeartbeatAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2287,7 +3361,13 @@ module.exports = function() {
      * @param {*} sessionID Session ID
      * @returns Whether or not the client can get the session state.
      */
-    function CanGetSessionState(clientID, sessionID) {
+    this.CanGetSessionState = function(clientID, sessionID) {
+        if (this.getSessionStateAuthCallback != null) {
+            if (this.getSessionStateAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2298,6 +3378,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a container entity.
      */
     function CanCreateContainerEntity(clientID, sessionID) {
+        if (this.createContainerEntityAuthCallback != null) {
+            if (this.createContainerEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2308,6 +3394,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a mesh entity.
      */
     function CanCreateMeshEntity(clientID, sessionID) {
+        if (this.createMeshEntityAuthCallback != null) {
+            if (this.createMeshEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2318,6 +3410,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a character entity.
      */
     function CanCreateCharacterEntity(clientID, sessionID) {
+        if (this.createCharacterEntityAuthCallback != null) {
+            if (this.createCharacterEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2328,6 +3426,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a button entity.
      */
     function CanCreateButtonEntity(clientID, sessionID) {
+        if (this.createButtonEntityAuthCallback != null) {
+            if (this.createButtonEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2338,6 +3442,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a canvas entity.
      */
     function CanCreateCanvasEntity(clientID, sessionID) {
+        if (this.createCanvasEntityAuthCallback != null) {
+            if (this.createCanvasEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2348,6 +3458,12 @@ module.exports = function() {
      * @returns Whether or not the client can create an input entity.
      */
     function CanCreateInputEntity(clientID, sessionID) {
+        if (this.createInputEntityAuthCallback != null) {
+            if (this.createInputEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2358,6 +3474,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a light entity.
      */
     function CanCreateLightEntity(clientID, sessionID) {
+        if (this.createLightEntityAuthCallback != null) {
+            if (this.createLightEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2368,6 +3490,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a terrain entity.
      */
     function CanCreateTerrainEntity(clientID, sessionID) {
+        if (this.createTerrainEntityAuthCallback != null) {
+            if (this.createTerrainEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2378,6 +3506,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a text entity.
      */
     function CanCreateTextEntity(clientID, sessionID) {
+        if (this.createTextEntityAuthCallback != null) {
+            if (this.createTextEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2388,6 +3522,12 @@ module.exports = function() {
      * @returns Whether or not the client can create a voxel entity.
      */
     function CanCreateVoxelEntity(clientID, sessionID) {
+        if (this.createVoxelEntityAuthCallback != null) {
+            if (this.createVoxelEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2398,6 +3538,12 @@ module.exports = function() {
      * @returns Whether or not the client can send a message.
      */
     function CanSendMessage(clientID, sessionID) {
+        if (this.sendMessageAuthCallback != null) {
+            if (this.sendMessageAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2408,6 +3554,12 @@ module.exports = function() {
      * @returns Whether or not the client can delete an entity.
      */
     function CanDeleteEntity(clientID, sessionID) {
+        if (this.deleteEntityAuthCallback != null) {
+            if (this.deleteEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2418,6 +3570,12 @@ module.exports = function() {
      * @returns Whether or not the client can remove an entity.
      */
     function CanRemoveEntity(clientID, sessionID) {
+        if (this.removeEntityAuthCallback != null) {
+            if (this.removeEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2428,6 +3586,12 @@ module.exports = function() {
      * @returns Whether or not the client can position an entity.
      */
     function CanPositionEntity(clientID, sessionID) {
+        if (this.positionEntityAuthCallback != null) {
+            if (this.positionEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2438,6 +3602,12 @@ module.exports = function() {
      * @returns Whether or not the client can rotate an entity.
      */
     function CanRotateEntity(clientID, sessionID) {
+        if (this.rotateEntityAuthCallback != null) {
+            if (this.rotateEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2448,6 +3618,12 @@ module.exports = function() {
      * @returns Whether or not the client can scale an entity.
      */
     function CanScaleEntity(clientID, sessionID) {
+        if (this.scaleEntityAuthCallback != null) {
+            if (this.scaleEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2458,6 +3634,28 @@ module.exports = function() {
      * @returns Whether or not the client can size an entity.
      */
     function CanSizeEntity(clientID, sessionID) {
+        if (this.sizeEntityAuthCallback != null) {
+            if (this.sizeEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @function CanModifyTerrainEntity Determine whether or not the client can modify a terrain entity.
+     * @param {*} clientID Client ID.
+     * @param {*} sessionID Session ID
+     * @returns Whether or not the client can modify a terrain entity.
+     */
+    function CanModifyTerrainEntity(clientID, sessionID) {
+        if (this.modifyTerrainEntityAuthCallback != null) {
+            if (this.modifyTerrainEntityAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2468,6 +3666,12 @@ module.exports = function() {
      * @returns Whether or not the client can set an entity canvas type.
      */
     function CanSetEntityCanvasType(clientID, sessionID) {
+        if (this.setEntityCanvasTypeAuthCallback != null) {
+            if (this.setEntityCanvasTypeAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -2478,6 +3682,12 @@ module.exports = function() {
      * @returns Whether or not the client can set an entity highlight state.
      */
     function CanSetEntityHighlightState(clientID, sessionID) {
+        if (this.setEntityHighlightStateAuthCallback != null) {
+            if (this.setEntityHighlightStateAuthCallback(clientID, sessionID) != true) {
+                return false;
+            }
+        }
+
         return true;
     }
 

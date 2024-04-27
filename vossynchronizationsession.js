@@ -81,13 +81,35 @@ module.exports = function(id, tag) {
      * @param {*} width Width.
      * @param {*} height Height.
      * @param {*} heights Heights.
+     * @param {*} diffuseTextures Diffuse Textures.
+     * @param {*} normalTextures Normal Textures.
+     * @param {*} maskTextures Mask Textures.
+     * @param {*} specularValues Specular Values.
+     * @param {*} metallicValues Metallic Values.
+     * @param {*} smoothnessValues Smoothness Values.
+     * @param {*} layerMask Layer Mask.
+     * @param {*} subType Sub-Type.
      * @param {*} text Text.
      * @param {*} fontSize Font Size.
+     * @param {*} angularVelocity Angular Velocity.
+     * @param {*} velocity Velocity.
+     * @param {*} stationary Stationary.
+     * @param {*} angularDrag Angular Drag.
+     * @param {*} centerOfMass Center of Mass.
+     * @param {*} drag Drag.
+     * @param {*} gravitational Gravitational.
+     * @param {*} mass Mass.
+     * @param {*} terrainModifications Terrain Modifications.
      * @param {*} clientToDeleteWith Client to Delete With.
      * @param {*} onClickEvent On Click Event.
      */
     this.AddEntityWithScale = function(id, tag, type, path, parent, position,
-        rotation, scale, resources, length, width, height, heights, text, fontSize,
+        rotation, scale, resources, length, width, height, heights,
+        diffuseTextures, normalTextures, maskTextures, specularValues,
+        metallicValues, smoothnessValues, layerMask, subType,
+        text, fontSize, angularVelocity, velocity, stationary,
+        angularDrag, centerOfMass, drag, gravitational, mass,
+        terrainModifications,
         clientToDeleteWith, onClickEvent) {
         for (entity in this.entities) {
             if (entity.uuid == id) {
@@ -96,7 +118,10 @@ module.exports = function(id, tag) {
             }
         }
         let newEntity = new vosEntity(id, tag, type, path, parent, position,
-            rotation, scale, false, false, resources, onClickEvent, length, width, height, heights, text, fontSize);
+            rotation, scale, false, false, resources, onClickEvent, length, width, height, heights,
+            diffuseTextures, normalTextures, maskTextures, specularValues, metallicValues, smoothnessValues,
+            layerMask, subType, text, fontSize, angularVelocity, velocity, stationary, angularDrag, centerOfMass,
+            drag, gravitational, mass, terrainModifications);
         this.entities.push(newEntity);
         this.clients.forEach(client => {
             if (client.uuid == clientToDeleteWith) {
@@ -120,13 +145,34 @@ module.exports = function(id, tag) {
      * @param {*} width Width.
      * @param {*} height Height.
      * @param {*} heights Heights.
+     * @param {*} diffuseTextures Diffuse Textures.
+     * @param {*} normalTextures Normal Textures.
+     * @param {*} maskTextures Mask Textures.
+     * @param {*} specularValues Specular Values.
+     * @param {*} metallicValues Metallic Values.
+     * @param {*} smoothnessValues Smoothness Values.
+     * @param {*} layerMask Layer Mask.
+     * @param {*} subType Sub-Type.
      * @param {*} text Text.
      * @param {*} fontSize Font Size.
+     * @param {*} angularVelocity Angular Velocity.
+     * @param {*} velocity Velocity.
+     * @param {*} stationary Stationary.
+     * @param {*} angularDrag Angular Drag.
+     * @param {*} centerOfMass Center of Mass.
+     * @param {*} drag Drag.
+     * @param {*} gravitational Gravitational.
+     * @param {*} mass Mass.
+     * @param {*} terrainModifications Terrain Modifications.
      * @param {*} clientToDeleteWith Client to Delete With.
      * @param {*} onClickEvent On Click Event.
      */
     this.AddEntityWithSize = function(id, tag, type, path, parent, position,
-        rotation, size, resources, length, width, height, heights, text, fontSize,
+        rotation, size, resources, length, width, height, heights,
+        diffuseTextures, normalTextures, maskTextures, specularValues,
+        metallicValues, smoothnessValues, layerMask, subType, text, fontSize,
+        angularVelocity, velocity, stationary, angularDrag, centerOfMass, drag,
+        gravitational, mass, terrainModifications,
         clientToDeleteWith, onClickEvent) {
         for (entity in this.entities) {
             if (entity.uuid == id) {
@@ -135,7 +181,10 @@ module.exports = function(id, tag) {
             }
         }
         let newEntity = new vosEntity(id, tag, type, path, parent, position,
-            rotation, size, true, false, resources, onClickEvent, length, width, height, heights, text, fontSize);
+            rotation, size, true, false, resources, onClickEvent, length, width, height, heights,
+            diffuseTextures, normalTextures, maskTextures, specularValues, metallicValues, smoothnessValues,
+            layerMask, subType, text, fontSize, angularVelocity, velocity, stationary, angularDrag, centerOfMass,
+            drag, gravitational, mass, terrainModifications);
         this.entities.push(newEntity);
         for (client in this.clients) {
             if (client.uuid == clientToDeleteWith) {
@@ -153,15 +202,14 @@ module.exports = function(id, tag) {
      * @param {*} parent Parent.
      * @param {*} positionPercent Position Percent.
      * @param {*} sizePercent Size Percent.
+     * @param {*} subType Sub-Type.
+     * @param {*} text Text.
+     * @param {*} fontSize Font Size.
      * @param {*} clientToDeleteWith Client to Delete With.
-     * @param {*} length Length.
-     * @param {*} width Width.
-     * @param {*} height Height.
-     * @param {*} heights Heights.
      * @param {*} onClickEvent On Click Event.
      */
     this.AddEntityWithCanvasTransform = function(id, tag, type, path, parent, positionPercent,
-        sizePercent, clientToDeleteWith, length, width, height, heights, onClickEvent) {
+        sizePercent, subType, text, fontSize, clientToDeleteWith, onClickEvent) {
         for (entity in this.entities) {
             if (entity.uuid == id) {
                 console.warn(`[VOSSynchronizationSession->AddEntityWithCanvasTransform] Duplicate UUID: ${id}. Skipping`);
@@ -169,7 +217,9 @@ module.exports = function(id, tag) {
             }
         }
         let newEntity = new vosEntity(id, tag, type, path, parent, positionPercent,
-            null, sizePercent, false, true, resources, onClickEvent, length, width, height, heights, text, fontSize);
+            null, sizePercent, false, true, resources, onClickEvent, null, null, null, null,
+            null, null, null, null, null, null,
+            null, subType, text, fontSize, null, null, null, null, null, null, null, null, null);
         this.entities.push(newEntity);
         for (client in this.clients) {
             if (client.uuid == clientToDeleteWith) {
@@ -279,6 +329,29 @@ module.exports = function(id, tag) {
         this.entities.forEach(entity => {
             if (entity.uuid == id) {
                 entity.size = size;
+                return;
+            }
+        });
+        //console.warn(`[VOSSynchronizationSession->SizeEntity] Entity: ${id} does not exist`);
+    }
+
+    /**
+     * @function SizeEntity Modify a Terrain Entity.
+     * @param {*} id ID.
+     * @param {*} mod Modification.
+     * @param {*} pos Position.
+     * @param {*} bt Brush Type.
+     * @param {*} lyr Layer.
+     */
+    this.ModifyTerrainEntity = function(id, mod, pos, bt, lyr) {
+        this.entities.forEach(entity => {
+            if (entity.uuid == id) {
+                entity.terrainModifications.push({
+                    modification: mod,
+                    position: pos,
+                    brushType: bt,
+                    layer: lyr
+                });
                 return;
             }
         });
