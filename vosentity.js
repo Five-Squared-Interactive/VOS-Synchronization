@@ -37,6 +37,9 @@
  * @param {*} gravitational Gravitational.
  * @param {*} mass Mass.
  * @param {*} terrainModifications Terrain Modifications.
+ * @param {*} modelOffset Model Offset.
+ * @param {*} modelRotation Model Rotation.
+ * @param {*} labelOffset Label Offset.
  */
 module.exports = function(uuid, tag, type, path, parent,
     position, rotation, scalesize, isSize, isSizePercent,
@@ -45,7 +48,7 @@ module.exports = function(uuid, tag, type, path, parent,
     metallicValues, smoothnessValues, layerMask, subType,
     text, fontSize, angularVelocity, velocity, stationary,
     angularDrag, centerOfMass, drag, gravitational, mass,
-    terrainModifications) {
+    terrainModifications, modelOffset, modelRotation, labelOffset) {
         this.uuid = uuid;
         this.tag = tag;
         this.type = type;
@@ -83,4 +86,7 @@ module.exports = function(uuid, tag, type, path, parent,
         this.gravitational = gravitational;
         this.mass = mass;
         this.terrainModifications = terrainModifications;
+        this.modelOffset = modelOffset;
+        this.modelRotation = modelRotation;
+        this.labelOffset = labelOffset;
 };

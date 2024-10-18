@@ -100,6 +100,9 @@ module.exports = function(id, tag) {
      * @param {*} gravitational Gravitational.
      * @param {*} mass Mass.
      * @param {*} terrainModifications Terrain Modifications.
+     * @param {*} modelOffset Model Offset.
+     * @param {*} modelRotation Model Rotation.
+     * @param {*} labelOffset Label Offset.
      * @param {*} clientToDeleteWith Client to Delete With.
      * @param {*} onClickEvent On Click Event.
      */
@@ -109,7 +112,7 @@ module.exports = function(id, tag) {
         metallicValues, smoothnessValues, layerMask, subType,
         text, fontSize, angularVelocity, velocity, stationary,
         angularDrag, centerOfMass, drag, gravitational, mass,
-        terrainModifications,
+        terrainModifications, modelOffset, modelRotation, labelOffset,
         clientToDeleteWith, onClickEvent) {
         for (entity in this.entities) {
             if (entity.uuid == id) {
@@ -121,7 +124,7 @@ module.exports = function(id, tag) {
             rotation, scale, false, false, resources, onClickEvent, length, width, height, heights,
             diffuseTextures, normalTextures, maskTextures, specularValues, metallicValues, smoothnessValues,
             layerMask, subType, text, fontSize, angularVelocity, velocity, stationary, angularDrag, centerOfMass,
-            drag, gravitational, mass, terrainModifications);
+            drag, gravitational, mass, terrainModifications, modelOffset, modelRotation, labelOffset);
         this.entities.push(newEntity);
         this.clients.forEach(client => {
             if (client.uuid == clientToDeleteWith) {
@@ -164,6 +167,9 @@ module.exports = function(id, tag) {
      * @param {*} gravitational Gravitational.
      * @param {*} mass Mass.
      * @param {*} terrainModifications Terrain Modifications.
+     * @param {*} modelOffset Model Offset.
+     * @param {*} modelRotation Model Rotation.
+     * @param {*} labelOffset Label Offset.
      * @param {*} clientToDeleteWith Client to Delete With.
      * @param {*} onClickEvent On Click Event.
      */
@@ -172,7 +178,7 @@ module.exports = function(id, tag) {
         diffuseTextures, normalTextures, maskTextures, specularValues,
         metallicValues, smoothnessValues, layerMask, subType, text, fontSize,
         angularVelocity, velocity, stationary, angularDrag, centerOfMass, drag,
-        gravitational, mass, terrainModifications,
+        gravitational, mass, terrainModifications, modelOffset, modelRotation, labelOffset,
         clientToDeleteWith, onClickEvent) {
         for (entity in this.entities) {
             if (entity.uuid == id) {
@@ -184,7 +190,7 @@ module.exports = function(id, tag) {
             rotation, size, true, false, resources, onClickEvent, length, width, height, heights,
             diffuseTextures, normalTextures, maskTextures, specularValues, metallicValues, smoothnessValues,
             layerMask, subType, text, fontSize, angularVelocity, velocity, stationary, angularDrag, centerOfMass,
-            drag, gravitational, mass, terrainModifications);
+            drag, gravitational, mass, terrainModifications, modelOffset, modelRotation, labelOffset);
         this.entities.push(newEntity);
         for (client in this.clients) {
             if (client.uuid == clientToDeleteWith) {
@@ -219,7 +225,7 @@ module.exports = function(id, tag) {
         let newEntity = new vosEntity(id, tag, type, path, parent, positionPercent,
             null, sizePercent, false, true, resources, onClickEvent, null, null, null, null,
             null, null, null, null, null, null,
-            null, subType, text, fontSize, null, null, null, null, null, null, null, null, null);
+            null, subType, text, fontSize, null, null, null, null, null, null, null, null, null, null, null, null);
         this.entities.push(newEntity);
         for (client in this.clients) {
             if (client.uuid == clientToDeleteWith) {

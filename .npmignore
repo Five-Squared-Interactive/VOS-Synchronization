@@ -1,5 +1,4 @@
 .github/
-Mosquitto/
 .config-temp
 configuration.json
 vss.log

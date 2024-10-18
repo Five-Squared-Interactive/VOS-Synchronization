@@ -5,6 +5,7 @@ const mqtt = require("mqtt");
 const fs = require("fs");
 const { v4: uuidv4 } = require('uuid');
 const vosSynchronizationSession = require('./vossynchronizationsession.js');
+const path = require("path");
 
 /**
  * Configuration File name.
@@ -19,7 +20,7 @@ module.exports = function() {
     /**
      * Version.
      */
-    this.VERSION = "1.1.0"
+    this.VERSION = "1.2.0"
 
     /**
      * Callback for checking Create Session Authorization.
@@ -177,7 +178,7 @@ module.exports = function() {
         config = `${config}\nallow_anonymous true`;
         fs.writeFileSync(CONFIGFILENAME, config);
         if (process.platform == "win32") {
-            this.mosquittoProcess = spawn(".\\Mosquitto\\mosquitto.exe", ["-c", CONFIGFILENAME], {detached: true});
+            this.mosquittoProcess = spawn(path.join(__dirname, "Mosquitto\\mosquitto.exe"), ["-c", CONFIGFILENAME], {detached: true});
         } else {
             this.mosquittoProcess = spawn("mosquitto", ["-c", CONFIGFILENAME], {detached: true});
         }
@@ -239,7 +240,7 @@ module.exports = function() {
             "session-id": id,
             "session-tag": tag
         };
-        SendMessage("vos/session/new", messageToSend);
+        SendMessage("vos/session/new", JSON.stringify(messageToSend));
     }
 
     /**
@@ -253,7 +254,7 @@ module.exports = function() {
             "message-id": uuidv4(),
             "session-id": id
         };
-        SendMessage("vos/session/closed", );
+        SendMessage("vos/session/closed", JSON.stringify(messageToSend));
     }
 
     /**
@@ -270,7 +271,7 @@ module.exports = function() {
             "client-id": clientID,
             "client-tag": clientTag
         };
-        SendMessage("vos/status/" + session.id + "/newclient", );
+        SendMessage("vos/status/" + session.id + "/newclient", JSON.stringify(messageToSend));
     }
 
     /**
@@ -285,7 +286,7 @@ module.exports = function() {
             "session-id": session.id,
             "client-id": clientID
         };
-        SendMessage("vos/status/" + session.id + "/clientleft", );
+        SendMessage("vos/status/" + session.id + "/clientleft", JSON.stringify(messageToSend));
     }
 
     /**
@@ -307,7 +308,7 @@ module.exports = function() {
             null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
             { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-            clientToDeleteWith, null);
+            null, null, null, clientToDeleteWith, null);
         messageToSend = {
             "message-id": uuidv4(),
             "session-id": session.id,
@@ -319,7 +320,7 @@ module.exports = function() {
             "rotation": rotation,
             "scale": scale
         };
-        SendMessage("vos/status/" + session.id + "/createcontainerentity", messageToSend);
+        SendMessage("vos/status/" + session.id + "/createcontainerentity", JSON.stringify(messageToSend));
     }
 
     /**
@@ -344,7 +345,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
 
             messageToSend = {
                 "message-id": uuidv4(),
@@ -359,7 +360,7 @@ module.exports = function() {
                 "rotation": rotation,
                 "size": scale
             };
-            SendMessage("vos/status/" + session.id + "/createmeshentity", messageToSend);
+            SendMessage("vos/status/" + session.id + "/createmeshentity", JSON.stringify(messageToSend));
         }
         else {
             session.AddEntityWithScale(entityID, entityTag, "mesh", path,
@@ -367,7 +368,7 @@ module.exports = function() {
             null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
             { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-            clientToDeleteWith, null);
+            null, null, null, clientToDeleteWith, null);
             messageToSend = {
                 "message-id": uuidv4(),
                 "session-id": session.id,
@@ -381,7 +382,7 @@ module.exports = function() {
                 "rotation": rotation,
                 "scale": scale
             };
-            SendMessage("vos/status/" + session.id + "/createmeshentity", messageToSend);
+            SendMessage("vos/status/" + session.id + "/createmeshentity", JSON.stringify(messageToSend));
         }
     }
 
@@ -400,14 +401,14 @@ module.exports = function() {
      * @param {*} clientToDeleteWith Client to delete entity with.
      */
     this.CreateCharacterEntity = function(session, entityID, entityTag, path, parentID,
-        position, rotation, scale, isSize, clientToDeleteWith) {
+        position, rotation, scale, isSize, modelOffset, modelRotation, labelOffset, clientToDeleteWith) {
         if (isSize) {
             session.AddEntityWithSize(entityID, entityTag, "character", path,
                 parentID, position, rotation, scale, null,
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                modelOffset, modelRotation, labelOffset, clientToDeleteWith, null);
             messageToSend = {
                 "message-id": uuidv4(),
                 "session-id": session.id,
@@ -416,11 +417,14 @@ module.exports = function() {
                 "tag": entityTag,
                 "parent-id": parentID,
                 "path": path,
+                "model-offset": modelOffset,
+                "model-rotation": modelRotation,
+                "label-offset": labelOffset,
                 "position": position,
                 "rotation": rotation,
                 "size": scale
             };
-            SendMessage("vos/status/" + session.id + "/createcharacterentity", messageToSend);
+            SendMessage("vos/status/" + session.id + "/createcharacterentity", JSON.stringify(messageToSend));
         }
         else {
             session.AddEntityWithScale(entityID, entityTag, "character", path,
@@ -428,7 +432,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                modelOffset, modelRotation, labelOffset, clientToDeleteWith, null);
             messageToSend = {
                 "message-id": uuidv4(),
                 "session-id": session.id,
@@ -437,11 +441,14 @@ module.exports = function() {
                 "tag": entityTag,
                 "parent-id": parentID,
                 "path": path,
+                "model-offset": modelOffset,
+                "model-rotation": modelRotation,
+                "label-offset": labelOffset,
                 "position": position,
                 "rotation": rotation,
                 "scale": scale
             };
-            SendMessage("vos/status/" + session.id + "/createcharacterentity", messageToSend);
+            SendMessage("vos/status/" + session.id + "/createcharacterentity", JSON.stringify(messageToSend));
         }
     }
 
@@ -473,7 +480,7 @@ module.exports = function() {
             "size-percent": sizePercent,
             "on-click": onClick
         };
-        SendMessage("vos/status/" + session.id + "/createbuttonentity", messageToSend);
+        SendMessage("vos/status/" + session.id + "/createbuttonentity", JSON.stringify(messageToSend));
     }
 
     /**
@@ -497,7 +504,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             messageToSend = {
                 "message-id": uuidv4(),
                 "session-id": session.id,
@@ -510,7 +517,7 @@ module.exports = function() {
                 "rotation": rotation,
                 "size": scale
             };
-            SendMessage("vos/status/" + session.id + "/createcanvasentity", messageToSend);
+            SendMessage("vos/status/" + session.id + "/createcanvasentity", JSON.stringify(messageToSend));
         }
         else {
             session.AddEntityWithScale(entityID, entityTag, "canvas", path,
@@ -518,7 +525,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             messageToSend = {
                 "message-id": uuidv4(),
                 "session-id": session.id,
@@ -531,7 +538,7 @@ module.exports = function() {
                 "rotation": rotation,
                 "scale": scale
             };
-            SendMessage("vos/status/" + session.id + "/createcanvasentity", messageToSend);
+            SendMessage("vos/status/" + session.id + "/createcanvasentity", JSON.stringify(messageToSend));
         }
     }
 
@@ -561,7 +568,7 @@ module.exports = function() {
             "position-percent": positionPercent,
             "size-percent": sizePercent
         };
-        SendMessage("vos/status/" + session.id + "/createinputentity", messageToSend);
+        SendMessage("vos/status/" + session.id + "/createinputentity", JSON.stringify(messageToSend));
     }
 
     /**
@@ -582,7 +589,7 @@ module.exports = function() {
             null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
             { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-            clientToDeleteWith, null);
+            null, null, null, clientToDeleteWith, null);
         messageToSend = {
             "message-id": uuidv4(),
             "session-id": session.id,
@@ -594,7 +601,7 @@ module.exports = function() {
             "position": position,
             "rotation": rotation
         };
-        SendMessage("vos/status/" + session.id + "/createlightentity", messageToSend);
+        SendMessage("vos/status/" + session.id + "/createlightentity", JSON.stringify(messageToSend));
     }
 
     /**
@@ -632,7 +639,7 @@ module.exports = function() {
             specularValues, metallicValues, smoothnessValues, layerMask, type, null, null,
             { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
             { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, modifications,
-            clientToDeleteWith, null);
+            null, null, null, clientToDeleteWith, null);
         messageToSend = {
             "message-id": uuidv4(),
             "session-id": session.id,
@@ -657,7 +664,7 @@ module.exports = function() {
             "type": type,
             "modifications": modifications
         };
-        SendMessage("vos/status/" + session.id + "/createterrainentity", messageToSend);
+        SendMessage("vos/status/" + session.id + "/createterrainentity", JSON.stringify(messageToSend));
     }
 
     /**
@@ -690,7 +697,7 @@ module.exports = function() {
             "text": text,
             "font-size": fontSize
         };
-        SendMessage("vos/status/" + session.id + "/createtextentity", messageToSend);
+        SendMessage("vos/status/" + session.id + "/createtextentity", JSON.stringify(messageToSend));
     }
 
     /**
@@ -715,7 +722,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             messageToSend = {
                 "message-id": uuidv4(),
                 "session-id": session.id,
@@ -728,7 +735,7 @@ module.exports = function() {
                 "rotation": rotation,
                 "size": scale
             };
-            SendMessage("vos/status/" + session.id + "/createvoxelentity", messageToSend);
+            SendMessage("vos/status/" + session.id + "/createvoxelentity", JSON.stringify(messageToSend));
         }
         else {
             session.AddEntityWithScale(entityID, entityTag, "voxel", path,
@@ -736,7 +743,7 @@ module.exports = function() {
             null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
             { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-            clientToDeleteWith, null);
+            null, null, null, clientToDeleteWith, null);
             messageToSend = {
                 "message-id": uuidv4(),
                 "session-id": session.id,
@@ -749,7 +756,7 @@ module.exports = function() {
                 "rotation": rotation,
                 "scale": scale
             };
-            SendMessage("vos/status/" + session.id + "/createvoxelentity", messageToSend);
+            SendMessage("vos/status/" + session.id + "/createvoxelentity", JSON.stringify(messageToSend));
         }
     }
 
@@ -766,7 +773,7 @@ module.exports = function() {
             "topic": topic,
             "message": message
         };
-        SendMessage("vos/status/" + session.id + "/message/create", messageToSend);
+        SendMessage("vos/status/" + session.id + "/message/create", JSON.stringify(messageToSend));
     }
 
     /**
@@ -782,7 +789,7 @@ module.exports = function() {
             "client-id": clientID,
             "entity-id": entityID
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/delete", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/delete", JSON.stringify(messageToSend));
     }
 
     /**
@@ -798,7 +805,7 @@ module.exports = function() {
             "client-id": clientID,
             "entity-id": entityID
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/remove", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/remove", JSON.stringify(messageToSend));
     }
 
     /**
@@ -816,7 +823,7 @@ module.exports = function() {
             "entity-id": entityID,
             "position": position
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/position", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/position", JSON.stringify(messageToSend));
     }
 
     /**
@@ -834,7 +841,7 @@ module.exports = function() {
             "entity-id": entityID,
             "rotation": rotation
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/rotation", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/rotation", JSON.stringify(messageToSend));
     }
 
     /**
@@ -852,7 +859,7 @@ module.exports = function() {
             "entity-id": entityID,
             "scale": scale
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/scale", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/scale", JSON.stringify(messageToSend));
     }
 
     /**
@@ -870,7 +877,7 @@ module.exports = function() {
             "entity-id": entityID,
             "size": size
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/size", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/size", JSON.stringify(messageToSend));
     }
 
     /**
@@ -895,7 +902,7 @@ module.exports = function() {
             "brush-type": brushType,
             "layer": layer
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/terrain-mod", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/terrain-mod", JSON.stringify(messageToSend));
     }
 
     /**
@@ -913,7 +920,7 @@ module.exports = function() {
             "entity-id": entityID,
             "canvas-type": type
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/canvastype", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/canvastype", JSON.stringify(messageToSend));
     }
 
     /**
@@ -931,7 +938,7 @@ module.exports = function() {
             "entity-id": entityID,
             "highlighted": highlighted
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/highlight", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/highlight", JSON.stringify(messageToSend));
     }
 
     /**
@@ -953,7 +960,7 @@ module.exports = function() {
             "velocity": velocity,
             "stationary": stationary
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/motion", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/motion", JSON.stringify(messageToSend));
     }
 
     /**
@@ -971,7 +978,7 @@ module.exports = function() {
             "entity-id": entityID,
             "parent-id": parentID
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/parent", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/parent", JSON.stringify(messageToSend));
     }
 
     /**
@@ -997,7 +1004,7 @@ module.exports = function() {
             "gravitational": gravitational,
             "mass": mass
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/physicalproperties", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/physicalproperties", JSON.stringify(messageToSend));
     }
 
     /**
@@ -1015,7 +1022,7 @@ module.exports = function() {
             "entity-id": clientTag,
             "visible": visibility
         };
-        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/visibility", messageToSend);
+        SendMessage("vos/status/" + session.id + "/entity/" + entityID + "/visibility", JSON.stringify(messageToSend));
     }
 
     /**
@@ -1113,6 +1120,9 @@ module.exports = function() {
                         entityToAdd["tag"] = entity.tag;
                         entityToAdd["type"] = entity.type;
                         entityToAdd["path"] = entity.path;
+                        entityToAdd["model-offset"] = entity.modelOffset;
+                        entityToAdd["model-rotation"] = entity.modelRotation;
+                        entityToAdd["label-offset"] = entity.labelOffset;
                         if (entity.parent == null) {
                             entityToAdd["parent-id"] = null;
                         }
@@ -1884,7 +1894,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -1905,7 +1915,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -2008,7 +2018,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -2029,7 +2039,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -2059,6 +2069,64 @@ module.exports = function() {
         if (!data.hasOwnProperty("path")) {
             console.warn("Create Character Entity Message does not contain: path");
             return;
+        }
+        if (!data.hasOwnProperty("model-offset")) {
+            console.warn("Create Character Entity Message does not contain: model-offset");
+            return;
+        }
+        else {
+            if (!data["model-offset"].hasOwnProperty("x")) {
+                console.warn("Create Character Entity Message does not contain: model-offset.x");
+                return;
+            }
+            if (!data["model-offset"].hasOwnProperty("y")) {
+                console.warn("Create Character Entity Message does not contain: model-offset.y");
+                return;
+            }
+            if (!data["model-offset"].hasOwnProperty("z")) {
+                console.warn("Create Character Entity Message does not contain: model-offset.z");
+                return;
+            }
+        }
+        if (!data.hasOwnProperty("model-rotation")) {
+            console.warn("Create Character Entity Message does not contain: model-rotation");
+            return;
+        }
+        else {
+            if (!data["model-rotation"].hasOwnProperty("x")) {
+                console.warn("Create Character Entity Message does not contain: model-rotation.x");
+                return;
+            }
+            if (!data["model-rotation"].hasOwnProperty("y")) {
+                console.warn("Create Character Entity Message does not contain: model-rotation.y");
+                return;
+            }
+            if (!data["model-rotation"].hasOwnProperty("z")) {
+                console.warn("Create Character Entity Message does not contain: model-rotation.z");
+                return;
+            }
+            if (!data["model-rotation"].hasOwnProperty("w")) {
+                console.warn("Create Character Entity Message does not contain: model-rotation.w");
+                return;
+            }
+        }
+        if (!data.hasOwnProperty("label-offset")) {
+            console.warn("Create Character Entity Message does not contain: label-offset");
+            return;
+        }
+        else {
+            if (!data["label-offset"].hasOwnProperty("x")) {
+                console.warn("Create Character Entity Message does not contain: label-offset.x");
+                return;
+            }
+            if (!data["label-offset"].hasOwnProperty("y")) {
+                console.warn("Create Character Entity Message does not contain: label-offset.y");
+                return;
+            }
+            if (!data["label-offset"].hasOwnProperty("z")) {
+                console.warn("Create Character Entity Message does not contain: label-offset.z");
+                return;
+            }
         }
         if (!data.hasOwnProperty("position")) {
             console.warn("Create Character Entity Message does not contain: position");
@@ -2132,7 +2200,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                data["model-offset"], data["model-rotation"], data["label-offset"], clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -2153,7 +2221,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                data["model-offset"], data["model-rotation"], data["label-offset"], clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -2330,7 +2398,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -2351,7 +2419,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -2511,7 +2579,7 @@ module.exports = function() {
             null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
             { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-            clientToDeleteWith, null);
+            null, null, null, clientToDeleteWith, null);
         return entityuuid;
     }
 
@@ -2659,7 +2727,7 @@ module.exports = function() {
                 data["metallic-values"], data["smoothness-values"], data["layer-mask"], data["type"],
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, data["terrain-modification"],
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -2682,7 +2750,7 @@ module.exports = function() {
                 data["metallic-values"], data["smoothness-values"], data["layer-mask"], data["type"],
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, data["terrain-modification"],
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -2863,7 +2931,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else if (data.hasOwnProperty("size")) {
@@ -2884,7 +2952,7 @@ module.exports = function() {
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, true,
                 { x: 0, y: 0, z: 0 }, 0, { x: 0, y: 0, z: 0 }, false, 0, null,
-                clientToDeleteWith, null);
+                null, null, null, clientToDeleteWith, null);
             return entityuuid;
         }
         else {
@@ -3313,7 +3381,7 @@ module.exports = function() {
      * @param {*} sessionID Session ID
      * @returns Whether or not the client can join a session.
      */
-    this.CanJoinSession = function(clientID, sessionID) {
+    function CanJoinSession(clientID, sessionID) {
         if (this.joinSessionAuthCallback != null) {
             if (this.joinSessionAuthCallback(clientID, sessionID) != true) {
                 return false;
@@ -3329,7 +3397,7 @@ module.exports = function() {
      * @param {*} sessionID Session ID
      * @returns Whether or not the client can exit a session.
      */
-    this.CanExitSession = function(clientID, sessionID) {
+    function CanExitSession(clientID, sessionID) {
         if (this.exitSessionAuthCallback != null) {
             if (this.exitSessionAuthCallback(clientID, sessionID) != true) {
                 return false;
@@ -3345,7 +3413,7 @@ module.exports = function() {
      * @param {*} sessionID Session ID
      * @returns Whether or not the client can give a heartbeat.
      */
-    this.CanGiveHeartbeat = function(clientID, sessionID) {
+    function CanGiveHeartbeat(clientID, sessionID) {
         if (this.giveHeartbeatAuthCallback != null) {
             if (this.GiveHeartbeatAuthCallback(clientID, sessionID) != true) {
                 return false;
@@ -3361,7 +3429,7 @@ module.exports = function() {
      * @param {*} sessionID Session ID
      * @returns Whether or not the client can get the session state.
      */
-    this.CanGetSessionState = function(clientID, sessionID) {
+    function CanGetSessionState(clientID, sessionID) {
         if (this.getSessionStateAuthCallback != null) {
             if (this.getSessionStateAuthCallback(clientID, sessionID) != true) {
                 return false;

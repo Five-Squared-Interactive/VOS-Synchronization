@@ -8,8 +8,8 @@
     "VOS",
     "Synchronization"
   ],
-  "version": "1.1.0",
-  "main": "vsstest.js.js",
+  "version": "1.2.0",
+  "main": "vossynchronizationservice.js",
   "license": "MIT",
   "dependencies": {
     "mqtt": "latest",
@@ -19,5 +19,8 @@
   },
   "engines": {
     "node": ">=6.0"
+  },
+  "bin": {
+    "vos-synchronization": "./vossynchronizationservice.js"
   }
 }
