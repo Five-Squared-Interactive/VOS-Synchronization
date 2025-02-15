@@ -1406,7 +1406,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleScaleEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -1426,7 +1426,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleSizeEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -1446,7 +1446,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleModifyTerrainEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -1466,7 +1466,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleCanvasTypeEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -1486,7 +1486,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleHighlightStateEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -1506,7 +1506,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleMotionEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -1526,7 +1526,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleParentEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -1546,7 +1546,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandlePhysicalPropertiesEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -1566,7 +1566,7 @@ module.exports = function() {
                     }
                     entityUUID = ids[1];
                     HandleVisibilityEntityMessage(session, JSON.parse(message));
-                    returnTopic = topic.replace("vos/request", "vos/status/");
+                    returnTopic = topic.replace("vos/request", "vos/status");
                     returnMessage = message;
                     returnMessage["message-id"] = uuidv4();
                     delete returnMessage["client-id"];
@@ -3342,7 +3342,7 @@ module.exports = function() {
             console.warn("Visibility Entity Message does not contain: angular-drag");
             return;
         }
-        session.SetVisibility(data["entity-id"], entity.visible);
+        session.SetVisibility(data["entity-id"], data.visible);
     }
 
     /**
